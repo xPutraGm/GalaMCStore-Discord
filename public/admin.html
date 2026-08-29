@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GalaStore — Admin Workspace</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { neutral: { 900: '#111111', 950: '#0a0a0a' } }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-neutral-950 text-neutral-300 font-sans min-h-screen selection:bg-white selection:text-black antialiased">
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="fixed inset-0 bg-neutral-950 z-50 flex flex-col justify-center items-center p-6 transition-opacity duration-500">
+        <div class="w-full max-w-sm">
+            <div class="mb-10 text-center">
+                <h1 class="text-3xl font-bold text-white tracking-tighter">GalaStore.</h1>
+                <p class="text-neutral-500 mt-2 text-sm">Enter admin password to continue</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <input type="password" id="loginPassword" class="w-full bg-neutral-900 border border-neutral-800 rounded-2xl px-5 py-4 text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-500 transition-colors text-sm" placeholder="Password" required>
+                <div id="loginError" class="hidden text-red-400 text-sm text-center font-medium">Incorrect password.</div>
+                <button type="submit" class="w-full bg-white hover:bg-neutral-200 text-black font-semibold py-4 rounded-full transition-colors text-sm tracking-wide">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div id="adminContent" class="hidden flex flex-col min-h-screen">
+        
+        <!-- NAVBAR -->
+        <nav class="w-full max-w-5xl mx-auto px-6 py-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-white tracking-tighter">GalaStore.</h1>
+            <div class="flex items-center gap-6">
+                <a href="https://dashboard.sandbox.midtrans.com" target="_blank" class="hidden sm:block text-sm font-medium text-neutral-400 hover:text-white transition-colors">Midtrans</a>
+                <button onclick="logoutAdmin()" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors">Logout</button>
+            </div>
+        </nav>
+
+        <main class="flex-grow w-full max-w-5xl mx-auto px-6 pb-24">
+            
+            <!-- TAB SWITCHER -->
+            <div class="flex items-center gap-2 bg-neutral-900 p-1.5 rounded-full w-fit mb-10 border border-neutral-800">
+                <button onclick="switchTab('ranks')" id="tabBtnRanks" class="px-6 py-2 rounded-full text-xs font-semibold bg-white text-black transition-all">Ranks</button>
+                <button onclick="switchTab('promos')" id="tabBtnPromos" class="px-6 py-2 rounded-full text-xs font-semibold text-neutral-400 hover:text-white transition-all">Promo Codes</button>
+            </div>
+
+            <!-- SECTION 1: RANKS -->
+            <section id="sectionRanks">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
+                    <div>
+                        <h2 class="text-4xl font-bold text-white tracking-tighter mb-2">Ranks</h2>
+                        <p class="text-neutral-500 text-sm">Manage in-game rank catalog, pricing, and execution commands.</p>
+                    </div>
+                    <button onclick="openRankModal()" class="bg-white hover:bg-neutral-200 text-black font-semibold px-6 py-3.5 rounded-full transition-colors text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> Add Rank
+                    </button>
+                </header>
+                <div id="rankGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </section>
+
+            <!-- SECTION 2: PROMO CODES -->
+            <section id="sectionPromos" class="hidden">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
+                    <div>
+                        <h2 class="text-4xl font-bold text-white tracking-tighter mb-2">Promo Codes</h2>
+                        <p class="text-neutral-500 text-sm">Create discount vouchers for your players.</p>
+                    </div>
+                    <button onclick="openPromoModal()" class="bg-white hover:bg-neutral-200 text-black font-semibold px-6 py-3.5 rounded-full transition-colors text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> New Promo
+                    </button>
+                </header>
+                <div id="promoGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL RANK -->
+    <div id="rankModal" class="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+            <button type="button" onclick="closeRankModal()" class="absolute top-6 right-6 text-neutral-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="modalRankTitle" class="text-2xl font-bold text-white mb-6 tracking-tighter">Edit Rank</h3>
+            <form id="rankForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-neutral-500 mb-1">ID / Name</label>
+                        <input type="text" id="modalRankId" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm uppercase" placeholder="VIP" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-neutral-500 mb-1">Price (IDR)</label>
+                        <input type="number" id="modalRankPrice" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm" placeholder="25000" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-neutral-500 mb-1">Discord Role ID</label>
+                    <input type="text" id="modalRankRole" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm font-mono" placeholder="Role ID">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-neutral-500 mb-1">Benefits (Line break)</label>
+                    <textarea id="modalRankBenefits" rows="3" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm resize-none" placeholder="Feature 1&#10;Feature 2"></textarea>
+                </div>
+
+                <!-- NEW: CUSTOM RCON COMMANDS INPUT -->
+                <div>
+                    <label class="block text-xs font-medium text-neutral-500 mb-1 flex justify-between">
+                        <span>After-Buy RCON Commands (Line break)</span>
+                    </label>
+                    <textarea id="modalRankCommands" rows="3" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-xs font-mono resize-none" placeholder="luckperms user {player} parent set vip&#10;eco give {player} 25000&#10;broadcast &a{player} bought VIP!"></textarea>
+                    <p class="text-[10px] text-neutral-600 mt-1">Available placeholders: <code class="text-neutral-400">{player}</code>, <code class="text-neutral-400">{rank}</code>, <code class="text-neutral-400">{price}</code></p>
+                </div>
+
+                <button type="submit" class="w-full bg-white text-black font-semibold py-3.5 rounded-full text-sm mt-2">Save Rank</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PROMO -->
+    <div id="promoModal" class="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-10 w-full max-w-md relative">
+            <button type="button" onclick="closePromoModal()" class="absolute top-6 right-6 text-neutral-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-6 tracking-tighter">New Promo Code</h3>
+            <form id="promoForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-neutral-500 mb-1">Promo Code</label>
+                    <input type="text" id="modalPromoCode" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm uppercase font-mono" placeholder="GRANDOPENING" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-neutral-500 mb-1">Discount (%)</label>
+                        <input type="number" id="modalPromoDisc" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm" placeholder="20" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-neutral-500 mb-1">Max Uses</label>
+                        <input type="number" id="modalPromoMax" class="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-3 text-white text-sm" placeholder="50" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-white text-black font-semibold py-3.5 rounded-full text-sm mt-2">Create Promo</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = localStorage.getItem('adminToken') || '';
+        let currentRanks = {};
+
+        document.addEventListener('DOMContentLoaded', () => checkAuth());
+
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/check-auth', { headers: { 'x-admin-auth': adminToken } });
+                const json = await res.json();
+                if (json.success) {
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    document.getElementById('adminContent').classList.remove('hidden');
+                    loadRanks();
+                    loadPromos();
+                } else { showLogin(); }
+            } catch { showLogin(); }
+        }
+
+        function showLogin() {
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('adminContent').classList.add('hidden');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('loginPassword').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            const json = await res.json();
+            if (json.success) {
+                adminToken = json.token;
+                localStorage.setItem('adminToken', adminToken);
+                checkAuth();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+
+        async function logoutAdmin() {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            localStorage.removeItem('adminToken');
+            showLogin();
+        }
+
+        function switchTab(tab) {
+            const btnRanks = document.getElementById('tabBtnRanks');
+            const btnPromos = document.getElementById('tabBtnPromos');
+            const secRanks = document.getElementById('sectionRanks');
+            const secPromos = document.getElementById('sectionPromos');
+
+            if (tab === 'ranks') {
+                btnRanks.className = "px-6 py-2 rounded-full text-xs font-semibold bg-white text-black transition-all";
+                btnPromos.className = "px-6 py-2 rounded-full text-xs font-semibold text-neutral-400 hover:text-white transition-all";
+                secRanks.classList.remove('hidden');
+                secPromos.classList.add('hidden');
+            } else {
+                btnPromos.className = "px-6 py-2 rounded-full text-xs font-semibold bg-white text-black transition-all";
+                btnRanks.className = "px-6 py-2 rounded-full text-xs font-semibold text-neutral-400 hover:text-white transition-all";
+                secPromos.classList.remove('hidden');
+                secRanks.classList.add('hidden');
+            }
+        }
+
+        // --- RANKS LOGIC ---
+        async function loadRanks() {
+            const res = await fetch('/api/ranks');
+            const json = await res.json();
+            if (json.success) {
+                currentRanks = json.data;
+                renderRanks(json.data);
+            }
+        }
+
+        function renderRanks(ranks) {
+            const grid = document.getElementById('rankGrid');
+            grid.innerHTML = '';
+            for (const [id, r] of Object.entries(ranks)) {
+                const list = r.benefits.map(b => `<li class="flex items-start gap-3 text-neutral-400 text-sm"><span class="text-neutral-600">—</span><span class="flex-1">${b.replace(/^•\s*/, '')}</span></li>`).join('');
+                
+                const cmdCount = r.commands ? r.commands.length : 0;
+                
+                const card = document.createElement('div');
+                card.className = "bg-neutral-900 border border-neutral-800 rounded-[2rem] p-8 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white tracking-tighter">${id}</h3>
+                                <p class="text-xs text-neutral-500 mt-1 font-mono">Role: ${r.discordRoleId || 'N/A'} • ${cmdCount} RCON Cmd(s)</p>
+                            </div>
+                            <span class="text-lg font-semibold text-white tracking-tight">Rp ${r.price.toLocaleString('id-ID')}</span>
+                        </div>
+                        <ul class="space-y-2.5 mb-10">${list || '<li class="text-neutral-600 text-sm">No benefits set.</li>'}</ul>
+                    </div>
+                    <div class="flex gap-2 border-t border-neutral-800 pt-6 mt-auto">
+                        <button onclick="editRank('${id}')" class="flex-1 bg-neutral-950 hover:bg-neutral-800 text-white font-medium py-3 rounded-full text-sm border border-neutral-800 transition-colors">Edit</button>
+                        <button onclick="deleteRank('${id}')" class="bg-neutral-950 hover:bg-red-500/10 text-neutral-400 hover:text-red-400 font-medium w-12 py-3 rounded-full text-sm border border-neutral-800 transition-colors flex justify-center items-center"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function openRankModal() {
+            document.getElementById('modalRankTitle').innerText = 'Add Rank';
+            document.getElementById('modalRankId').value = '';
+            document.getElementById('modalRankId').disabled = false;
+            document.getElementById('modalRankPrice').value = '';
+            document.getElementById('modalRankRole').value = '';
+            document.getElementById('modalRankBenefits').value = '';
+            document.getElementById('modalRankCommands').value = 'luckperms user {player} parent set vip';
+            document.getElementById('rankModal').classList.remove('hidden');
+        }
+        function editRank(id) {
+            const r = currentRanks[id];
+            document.getElementById('modalRankTitle').innerText = `Edit ${id}`;
+            document.getElementById('modalRankId').value = id;
+            document.getElementById('modalRankId').disabled = true;
+            document.getElementById('modalRankPrice').value = r.price;
+            document.getElementById('modalRankRole').value = r.discordRoleId || '';
+            document.getElementById('modalRankBenefits').value = r.benefits ? r.benefits.join('\n') : '';
+            document.getElementById('modalRankCommands').value = r.commands ? r.commands.join('\n') : '';
+            document.getElementById('rankModal').classList.remove('hidden');
+        }
+        function closeRankModal() { document.getElementById('rankModal').classList.add('hidden'); }
+
+        document.getElementById('rankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('modalRankId').value.toUpperCase().trim();
+            const price = parseInt(document.getElementById('modalRankPrice').value);
+            const discordRoleId = document.getElementById('modalRankRole').value.trim();
+            const benefits = document.getElementById('modalRankBenefits').value.split('\n').filter(b => b.trim());
+            const commands = document.getElementById('modalRankCommands').value.split('\n').filter(c => c.trim());
+
+            await fetch('/api/admin/rank', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+                body: JSON.stringify({ id, price, discordRoleId, benefits, commands })
+            });
+            closeRankModal();
+            loadRanks();
+        });
+
+        async function deleteRank(id) {
+            if (!confirm(`Hapus rank ${id}?`)) return;
+            await fetch(`/api/admin/rank/${id}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } });
+            loadRanks();
+        }
+
+        // --- PROMO CODES LOGIC ---
+        async function loadPromos() {
+            const res = await fetch('/api/promos');
+            const json = await res.json();
+            if (json.success) {
+                renderPromos(json.data);
+            }
+        }
+
+        function renderPromos(promos) {
+            const grid = document.getElementById('promoGrid');
+            grid.innerHTML = '';
+            for (const p of promos) {
+                const card = document.createElement('div');
+                card.className = "bg-neutral-900 border border-neutral-800 rounded-[2rem] p-8 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <span class="text-xs font-mono bg-neutral-950 px-3 py-1 rounded-full border border-neutral-800 text-indigo-400 font-bold">${p.code}</span>
+                                <h3 class="text-3xl font-bold text-white tracking-tighter mt-3">${p.discount_percent}% OFF</h3>
+                            </div>
+                        </div>
+                        <p class="text-xs text-neutral-500 mb-6 font-mono">Usage: ${p.used_count} / ${p.max_uses} times</p>
+                    </div>
+                    <div class="border-t border-neutral-800 pt-6 mt-auto">
+                        <button onclick="deletePromo('${p.code}')" class="w-full bg-neutral-950 hover:bg-red-500/10 text-neutral-400 hover:text-red-400 font-medium py-3 rounded-full text-sm border border-neutral-800 transition-colors flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-trash-can text-xs"></i> Delete Promo
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+            if (promos.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-neutral-500 text-sm">No promo codes active.</div>`;
+            }
+        }
+
+        function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
+        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
+
+        document.getElementById('promoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('modalPromoCode').value.toUpperCase().trim();
+            const discountPercent = parseInt(document.getElementById('modalPromoDisc').value);
+            const maxUses = parseInt(document.getElementById('modalPromoMax').value);
+
+            await fetch('/api/admin/promo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+                body: JSON.stringify({ code, discountPercent, maxUses })
+            });
+            closePromoModal();
+            loadPromos();
+        });
+
+        async function deletePromo(code) {
+            if (!confirm(`Hapus kode promo ${code}?`)) return;
+            await fetch(`/api/admin/promo/${code}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } });
+            loadPromos();
+        }
+    </script>
+</body>
+</html>

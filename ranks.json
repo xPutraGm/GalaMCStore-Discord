@@ -1,0 +1,41 @@
+{
+  "VIP": {
+    "price": 25000,
+    "color": "#F1C40F",
+    "discordRoleId": "ROLE_ID_VIP",
+    "benefits": [
+      "• Prefix Tag **[VIP]** di In-Game & Discord",
+      "• Akses Command `/fly` di Survival World",
+      "• 3x Set Home (`/sethome`)",
+      "• Claim Land hingga 10 Chunk"
+    ]
+  },
+  "MVP": {
+    "price": 50000,
+    "color": "#9B59B6",
+    "discordRoleId": "ROLE_ID_MVP",
+    "benefits": [
+      "• Semua Benefit **VIP**",
+      "• Prefix Tag **[MVP]** Berwarna Purple Glow",
+      "• Akses Command `/heal` & `/feed`",
+      "• Unlimited Set Home (`/sethome`)"
+    ]
+  },
+  "promos": {
+    "GRANDOPENING": {
+      "discountPercent": 20,
+      "maxUses": 50,
+      "usedCount": 0
+    }
+  },
+  "salesHistory": [
+    {
+      "orderId": "MC-1788020815621",
+      "mcUsername": "JKT48",
+      "discordId": "800653335479975996",
+      "package": "VIP",
+      "amount": 25000,
+      "timestamp": 1788020838043
+    }
+  ]
+}
