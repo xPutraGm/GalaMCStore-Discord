@@ -104,7 +104,7 @@ app.post('/webhook/midtrans', (req, res) => handleWebhook(req, res, client));
 client.once('ready', async () => {
     await deployCommands();
     console.log(`🤖 Bot Discord Online: ${client.user.tag}`);
-    console.log(`✨ GalaStore Admin Panel: http://localhost:${process.env.PORT || 3000}/admin.html`);
+    console.log(`✨ GalaStore Admin Panel: http://localhost:${process.env.PORT || 6330}/admin.html`);
 
     client.user.setPresence({
         activities: [{ name: 'Ketik /buyrank | GalaMC Store 🛒', type: ActivityType.Custom }],
@@ -114,7 +114,7 @@ client.once('ready', async () => {
 
 client.on('interactionCreate', (interaction) => handleInteraction(interaction));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6330;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
 client.login(process.env.DISCORD_TOKEN);
