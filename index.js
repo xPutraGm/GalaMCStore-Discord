@@ -1,10 +1,10 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const deployCommands = require('./deploy-commands');
-const { initDatabase, getRanksData, saveRank, deleteRank, getPromosData, savePromo, deletePromo, getSetting, saveSetting } = require('./utils/db');
+const { initDatabase, getRanksData, saveRank, deleteRank, getPromosData, savePromo, deletePromo, getSetting, saveSetting, updateBotPresence } = require('./utils/db');
 const { handleInteraction } = require('./handlers/interactionHandler');
 const { handleWebhook } = require('./handlers/webhookHandler');
 
@@ -121,20 +121,37 @@ app.delete('/api/admin/promo/:code', requireAdminAuth, async (req, res) => {
     }
 });
 
-// --- FULL CUSTOMIZABLE SETTINGS MANAGEMENT ---
+// --- ADVANCED BOT & STORE SETTINGS ENDPOINTS ---
 app.get('/api/admin/settings', requireAdminAuth, async (req, res) => {
     try {
-        const channelId = await getSetting('live_feed_channel') || '';
-        const isEnabled = await getSetting('live_feed_status') || '0';
-        const title = await getSetting('live_feed_title') || '🎉 ADA YANG BARU BELANJA NIH!';
-        const desc = await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank}**!\n\n✨ *Dukung terus server GalaMC dengan berbelanja di Official Store!*';
-        const color = await getSetting('live_feed_color') || '#F1C40F';
-        const footer = await getSetting('live_feed_footer') || 'GalaMC Store System';
+        const data = {
+            // Live Feed
+            channelId: await getSetting('live_feed_channel') || '',
+            isEnabled: (await getSetting('live_feed_status')) === '1',
+            title: await getSetting('live_feed_title') || '🎉 ADA YANG BARU BELANJA NIH!',
+            desc: await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank}**!\n\n✨ *Dukung terus server GalaMC dengan berbelanja di Official Store!*',
+            color: await getSetting('live_feed_color') || '#F1C40F',
+            footer: await getSetting('live_feed_footer') || 'GalaMC Store System',
+            
+            // 1. Presence Config
+            botStatus: await getSetting('bot_status') || 'idle',
+            botActivityType: await getSetting('bot_activity_type') || 'Custom',
+            botActivityText: await getSetting('bot_activity_text') || 'Ketik /buyrank | GalaMC Store 🛒',
+            
+            // 2. Expiry Timeout
+            paymentExpiry: parseInt(await getSetting('payment_expiry_minutes') || '15'),
+            
+            // 3. Dynamic Catalog Embed
+            catalogTitle: await getSetting('catalog_embed_title') || '🛒 MC SERVER OFFICIAL STORE',
+            catalogDesc: await getSetting('catalog_embed_desc') || 'Selamat datang di Official Store! Pilih tombol di bawah untuk membeli rank diri sendiri atau mengirim hadiah ke teman.',
+            catalogColor: await getSetting('catalog_embed_color') || '#5865F2',
+            
+            // 4. Maintenance Switch
+            isMaintenance: (await getSetting('maintenance_mode')) === '1',
+            maintenanceText: await getSetting('maintenance_text') || '⚠️ Store sedang dalam pemeliharaan (Maintenance). Silakan coba lagi nanti!'
+        };
 
-        res.json({ 
-            success: true, 
-            data: { channelId, isEnabled: isEnabled === '1', title, desc, color, footer } 
-        });
+        res.json({ success: true, data });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -142,16 +159,43 @@ app.get('/api/admin/settings', requireAdminAuth, async (req, res) => {
 
 app.post('/api/admin/settings', requireAdminAuth, async (req, res) => {
     try {
-        const { channelId, isEnabled, title, desc, color, footer } = req.body;
+        const { 
+            channelId, isEnabled, title, desc, color, footer,
+            botStatus, botActivityType, botActivityText,
+            paymentExpiry,
+            catalogTitle, catalogDesc, catalogColor,
+            isMaintenance, maintenanceText
+        } = req.body;
         
+        // Live Feed
         await saveSetting('live_feed_channel', channelId || '');
         await saveSetting('live_feed_status', isEnabled ? '1' : '0');
-        await saveSetting('live_feed_title', title || '🎉 ADA YANG BARU BELANJA NIH!');
+        await saveSetting('live_feed_title', title || '');
         await saveSetting('live_feed_desc', desc || '');
         await saveSetting('live_feed_color', color || '#F1C40F');
-        await saveSetting('live_feed_footer', footer || 'GalaMC Store System');
+        await saveSetting('live_feed_footer', footer || '');
 
-        res.json({ success: true, message: 'Pengaturan & Pesan Live Feed berhasil disimpan!' });
+        // 1. Presence Config
+        await saveSetting('bot_status', botStatus || 'idle');
+        await saveSetting('bot_activity_type', botActivityType || 'Custom');
+        await saveSetting('bot_activity_text', botActivityText || '');
+
+        // 2. Expiry
+        await saveSetting('payment_expiry_minutes', (paymentExpiry || 15).toString());
+
+        // 3. Catalog Embed
+        await saveSetting('catalog_embed_title', catalogTitle || '');
+        await saveSetting('catalog_embed_desc', catalogDesc || '');
+        await saveSetting('catalog_embed_color', catalogColor || '#5865F2');
+
+        // 4. Maintenance
+        await saveSetting('maintenance_mode', isMaintenance ? '1' : '0');
+        await saveSetting('maintenance_text', maintenanceText || '');
+
+        // UPDATE PRESENCE BOT REALTIME LIVE
+        await updateBotPresence(client);
+
+        res.json({ success: true, message: 'Semua Pengaturan Bot berhasil disimpan & diperbarui!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -163,13 +207,9 @@ app.post('/webhook/midtrans', (req, res) => handleWebhook(req, res, client));
 // --- DISCORD CLIENT READY ---
 client.once('ready', async () => {
     await deployCommands();
+    await updateBotPresence(client); // Set presence saat startup
     console.log(`🤖 Bot Discord Online: ${client.user.tag}`);
     console.log(`✨ GalaStore Admin Panel: http://localhost:${process.env.PORT || 6330}/admin.html`);
-
-    client.user.setPresence({
-        activities: [{ name: 'Ketik /buyrank | GalaMC Store 🛒', type: ActivityType.Custom }],
-        status: 'idle'
-    });
 });
 
 client.on('interactionCreate', (interaction) => handleInteraction(interaction));

@@ -10,21 +10,36 @@ const {
     StringSelectMenuOptionBuilder 
 } = require('discord.js');
 const { coreApi } = require('../config/midtrans');
-const { getRanksData, getPromosData, savePromo, getSalesStats } = require('../utils/db');
-const { PAYMENT_EXPIRY_MINUTES, activeTransactions } = require('../store/transactions');
+const { getRanksData, getPromosData, savePromo, getSalesStats, getSetting } = require('../utils/db');
+const { activeTransactions } = require('../store/transactions');
 const { sendRconCommand } = require('../utils/rcon');
 
 async function handleInteraction(interaction) {
     if (!interaction) return;
 
+    // CEK MAINTENANCE MODE
+    const isMaintenance = (await getSetting('maintenance_mode')) === '1';
+    if (isMaintenance && !interaction.memberPermissions?.has('Administrator')) {
+        const maintText = await getSetting('maintenance_text') || '⚠️ Store sedang dalam pemeliharaan (Maintenance). Silakan coba lagi nanti!';
+        const maintEmbed = new EmbedBuilder().setTitle('🛠️ STORE MAINTENANCE').setDescription(maintText).setColor('#ED4245');
+        
+        if (interaction.isRepliable()) {
+            return await interaction.reply({ embeds: [maintEmbed], ephemeral: true });
+        }
+    }
+
     const ranksData = await getRanksData();
 
-    // HELPER BUILD EMBED KATALOG
-    function buildCatalogEmbed(client) {
+    // HELPER BUILD EMBED KATALOG DINAMIS
+    async function buildCatalogEmbed(client) {
+        const title = await getSetting('catalog_embed_title') || '🛒 MC SERVER OFFICIAL STORE';
+        const desc = await getSetting('catalog_embed_desc') || 'Selamat datang di Official Store! Pilih tombol di bawah untuk membeli rank diri sendiri atau mengirim hadiah ke teman.';
+        const color = await getSetting('catalog_embed_color') || '#5865F2';
+
         const catalogEmbed = new EmbedBuilder()
-            .setTitle('🛒 MC SERVER OFFICIAL STORE')
-            .setDescription('Selamat datang di Official Store! Pilih tombol di bawah untuk membeli rank diri sendiri atau mengirim hadiah ke teman.')
-            .setColor('#5865F2')
+            .setTitle(title)
+            .setDescription(desc)
+            .setColor(color)
             .setThumbnail(client.user.displayAvatarURL())
             .setTimestamp();
 
@@ -42,7 +57,7 @@ async function handleInteraction(interaction) {
     if (interaction.isChatInputCommand() && (interaction.commandName === 'setup-store' || interaction.commandName === 'buyrank')) {
         await interaction.deferReply({ ephemeral: true });
 
-        const catalogEmbed = buildCatalogEmbed(interaction.client);
+        const catalogEmbed = await buildCatalogEmbed(interaction.client);
         
         const buySelfBtn = new ButtonBuilder()
             .setCustomId('btn_open_modal_self')
@@ -236,7 +251,7 @@ async function handleInteraction(interaction) {
         await interaction.editReply({ embeds: [payEmbed], components: [row] });
     }
 
-    // === 5. SELECT PAYMENT -> CHARGE MIDTRANS ===
+    // === 5. SELECT PAYMENT -> CHARGE MIDTRANS (WITH DYNAMIC TIMEOUT) ===
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('select_pay_only_')) {
         await interaction.deferUpdate();
 
@@ -248,7 +263,9 @@ async function handleInteraction(interaction) {
         const paymentMethod = interaction.values[0];
 
         const orderId = `MC-${Date.now()}`;
-        const expiryMinutes = PAYMENT_EXPIRY_MINUTES || 15;
+        
+        // TIMEOUT DINAMIS DARI DATABASE
+        const expiryMinutes = parseInt(await getSetting('payment_expiry_minutes') || '15');
         const expiryTime = Math.floor(Date.now() / 1000) + (expiryMinutes * 60);
 
         let parameter = {

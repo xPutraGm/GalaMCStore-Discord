@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const { ActivityType } = require('discord.js');
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
@@ -192,6 +193,30 @@ async function saveSetting(key, value) {
     `, [key, value]);
 }
 
+// HELPER UPDATE REALTIME PRESENCE DISCORD
+async function updateBotPresence(client) {
+    if (!client || !client.user) return;
+    try {
+        const status = await getSetting('bot_status') || 'idle';
+        const typeStr = await getSetting('bot_activity_type') || 'Custom';
+        const text = await getSetting('bot_activity_text') || 'Ketik /buyrank | GalaMC Store 🛒';
+
+        let actType = ActivityType.Custom;
+        if (typeStr === 'Playing') actType = ActivityType.Playing;
+        else if (typeStr === 'Streaming') actType = ActivityType.Streaming;
+        else if (typeStr === 'Listening') actType = ActivityType.Listening;
+        else if (typeStr === 'Watching') actType = ActivityType.Watching;
+
+        client.user.setPresence({
+            activities: [{ name: text, type: actType }],
+            status: status
+        });
+        console.log(`🤖 [PRESENCE UPDATED] Status: ${status} | Type: ${typeStr} | Text: "${text}"`);
+    } catch (e) {
+        console.error('⚠️ Gagal update presence bot:', e.message);
+    }
+}
+
 module.exports = {
     initDatabase,
     getRanksData,
@@ -204,5 +229,6 @@ module.exports = {
     recordSale,
     getSalesStats,
     getSetting,
-    saveSetting
+    saveSetting,
+    updateBotPresence
 };
