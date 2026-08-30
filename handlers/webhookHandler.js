@@ -1,6 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { coreApi } = require('../config/midtrans');
-const { getRanksData, recordSale } = require('../utils/db');
+const { getRanksData, recordSale, getSetting } = require('../utils/db');
 const { sendRconCommand } = require('../utils/rcon');
 const { activeTransactions } = require('../store/transactions');
 
@@ -30,7 +30,6 @@ async function handleWebhook(req, res, client) {
         if (isPaid) {
             console.log(`\n✅ [PEMBAYARAN LUNAS] Memulai Eksekusi Multi-System...`);
 
-            // SIMPAN REKAP PENJUALAN KE MYSQL
             await recordSale(orderId, mcUsername, discordId, packageType, amountPaid);
 
             // 1. DYNAMIC MULTI-COMMAND RCON EXECUTION
@@ -150,6 +149,43 @@ async function handleWebhook(req, res, client) {
                 } catch (dmErr) {
                     console.error(`⚠️ [DM FAILED] Gagal Kirim DM ke User ID (${discordId}):`, dmErr.message);
                 }
+            }
+
+            // 6. PUBLIC LIVE FEED BROADCAST (FULL CUSTOMIZABLE FROM ADMIN)
+            try {
+                const feedStatus = await getSetting('live_feed_status');
+                const feedChannelId = await getSetting('live_feed_channel');
+
+                if (feedStatus === '1' && feedChannelId) {
+                    const feedChannel = await client.channels.fetch(feedChannelId).catch(() => null);
+                    if (feedChannel) {
+                        const rawTitle = await getSetting('live_feed_title') || '🎉 ADA YANG BARU BELANJA NIH!';
+                        const rawDesc = await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank}**!';
+                        const rawColor = await getSetting('live_feed_color') || '#F1C40F';
+                        const rawFooter = await getSetting('live_feed_footer') || 'GalaMC Store System';
+
+                        const discordMention = discordId ? `(<@${discordId}>)` : '';
+                        const formattedPrice = `Rp ${amountPaid.toLocaleString('id-ID')}`;
+
+                        // REPLACE PLACEHOLDERS
+                        const parsedTitle = rawTitle.replace(/{player}/g, mcUsername).replace(/{rank}/g, packageType).replace(/{price}/g, formattedPrice);
+                        const parsedDesc = rawDesc.replace(/{player}/g, mcUsername).replace(/{rank}/g, packageType).replace(/{discord}/g, discordMention).replace(/{price}/g, formattedPrice);
+                        const parsedFooter = rawFooter.replace(/{player}/g, mcUsername).replace(/{rank}/g, packageType);
+
+                        const feedEmbed = new EmbedBuilder()
+                            .setTitle(parsedTitle)
+                            .setDescription(parsedDesc)
+                            .setColor(rawColor)
+                            .setThumbnail(`https://mc-heads.net/avatar/${mcUsername}/100`)
+                            .setFooter({ text: parsedFooter })
+                            .setTimestamp();
+                        
+                        await feedChannel.send({ embeds: [feedEmbed] });
+                        console.log('📢 [LIVE FEED] Pengumuman publik berhasil dikirim ke channel!');
+                    }
+                }
+            } catch (feedErr) {
+                console.error('⚠️ Gagal memproses Public Live Feed:', feedErr.message);
             }
         }
 

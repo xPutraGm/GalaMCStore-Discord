@@ -44,6 +44,13 @@ async function initDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
 
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS galadc_settings (
+                setting_key VARCHAR(50) PRIMARY KEY,
+                setting_value TEXT
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+
         const [rows] = await pool.query('SELECT COUNT(*) as total FROM galadc_ranks');
         if (rows[0].total === 0) {
             console.log('🌱 Seeding Data Awal Rank ke MySQL Database (galadc_ranks)...');
@@ -172,6 +179,19 @@ async function getSalesStats() {
     };
 }
 
+async function getSetting(key) {
+    const [rows] = await pool.query('SELECT setting_value FROM galadc_settings WHERE setting_key = ?', [key]);
+    return rows.length > 0 ? rows[0].setting_value : null;
+}
+
+async function saveSetting(key, value) {
+    await pool.query(`
+        INSERT INTO galadc_settings (setting_key, setting_value)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    `, [key, value]);
+}
+
 module.exports = {
     initDatabase,
     getRanksData,
@@ -182,5 +202,7 @@ module.exports = {
     incrementPromoUse,
     deletePromo,
     recordSale,
-    getSalesStats
+    getSalesStats,
+    getSetting,
+    saveSetting
 };

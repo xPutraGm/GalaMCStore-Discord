@@ -4,11 +4,10 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const deployCommands = require('./deploy-commands');
-const { initDatabase, getRanksData, saveRank, deleteRank, getPromosData, savePromo, deletePromo } = require('./utils/db');
+const { initDatabase, getRanksData, saveRank, deleteRank, getPromosData, savePromo, deletePromo, getSetting, saveSetting } = require('./utils/db');
 const { handleInteraction } = require('./handlers/interactionHandler');
 const { handleWebhook } = require('./handlers/webhookHandler');
 
-// 1. Inisialisasi Database MySQL (Async)
 (async () => {
     await initDatabase();
 })();
@@ -63,7 +62,7 @@ app.post('/api/admin/logout', (req, res) => {
     res.json({ success: true, message: 'Logged out' });
 });
 
-// --- PUBLIC & PROTECTED DATA API (ASYNC MYSQL) ---
+// --- PUBLIC & PROTECTED DATA API ---
 app.get('/api/ranks', async (req, res) => {
     try {
         const data = await getRanksData();
@@ -117,6 +116,42 @@ app.delete('/api/admin/promo/:code', requireAdminAuth, async (req, res) => {
     try {
         await deletePromo(req.params.code);
         res.json({ success: true, message: 'Promo deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// --- FULL CUSTOMIZABLE SETTINGS MANAGEMENT ---
+app.get('/api/admin/settings', requireAdminAuth, async (req, res) => {
+    try {
+        const channelId = await getSetting('live_feed_channel') || '';
+        const isEnabled = await getSetting('live_feed_status') || '0';
+        const title = await getSetting('live_feed_title') || '🎉 ADA YANG BARU BELANJA NIH!';
+        const desc = await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank}**!\n\n✨ *Dukung terus server GalaMC dengan berbelanja di Official Store!*';
+        const color = await getSetting('live_feed_color') || '#F1C40F';
+        const footer = await getSetting('live_feed_footer') || 'GalaMC Store System';
+
+        res.json({ 
+            success: true, 
+            data: { channelId, isEnabled: isEnabled === '1', title, desc, color, footer } 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/api/admin/settings', requireAdminAuth, async (req, res) => {
+    try {
+        const { channelId, isEnabled, title, desc, color, footer } = req.body;
+        
+        await saveSetting('live_feed_channel', channelId || '');
+        await saveSetting('live_feed_status', isEnabled ? '1' : '0');
+        await saveSetting('live_feed_title', title || '🎉 ADA YANG BARU BELANJA NIH!');
+        await saveSetting('live_feed_desc', desc || '');
+        await saveSetting('live_feed_color', color || '#F1C40F');
+        await saveSetting('live_feed_footer', footer || 'GalaMC Store System');
+
+        res.json({ success: true, message: 'Pengaturan & Pesan Live Feed berhasil disimpan!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
