@@ -8,14 +8,16 @@ const { initDatabase, getRanksData, saveRank, deleteRank, getPromosData, savePro
 const { handleInteraction } = require('./handlers/interactionHandler');
 const { handleWebhook } = require('./handlers/webhookHandler');
 
-// 1. Inisialisasi Database SQLite
-initDatabase();
+// 1. Inisialisasi Database MySQL (Async)
+(async () => {
+    await initDatabase();
+})();
 
-const client = new Client({ 
+const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers
-    ] 
+    ]
 });
 
 const app = express();
@@ -25,7 +27,6 @@ app.use(express.static('public'));
 
 let validAdminSessionToken = null;
 
-// Middleware Proteksi Admin API
 function requireAdminAuth(req, res, next) {
     const authHeader = req.headers['x-admin-auth'];
     const sessionCookie = req.cookies['admin_session'];
@@ -45,7 +46,7 @@ app.post('/api/admin/login', (req, res) => {
         validAdminSessionToken = crypto.randomBytes(32).toString('hex');
         res.cookie('admin_session', validAdminSessionToken, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000 // 24 Jam
+            maxAge: 24 * 60 * 60 * 1000
         });
         return res.json({ success: true, token: validAdminSessionToken });
     }
@@ -62,39 +63,63 @@ app.post('/api/admin/logout', (req, res) => {
     res.json({ success: true, message: 'Logged out' });
 });
 
-// --- PUBLIC & PROTECTED DATA API ---
-app.get('/api/ranks', (req, res) => {
-    res.json({ success: true, data: getRanksData() });
+// --- PUBLIC & PROTECTED DATA API (ASYNC MYSQL) ---
+app.get('/api/ranks', async (req, res) => {
+    try {
+        const data = await getRanksData();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-app.get('/api/promos', (req, res) => {
-    res.json({ success: true, data: getPromosData() });
+app.get('/api/promos', async (req, res) => {
+    try {
+        const data = await getPromosData();
+        res.json({ success: true, data });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-// Protected Rank Management
-app.post('/api/admin/rank', requireAdminAuth, (req, res) => {
-    const { id, price, discordRoleId, benefits, commands } = req.body;
-    if (!id || !price) return res.status(400).json({ success: false, message: 'ID dan Price wajib diisi' });
-    saveRank(id, price, '#00AAFF', discordRoleId, benefits, commands);
-    res.json({ success: true, message: 'Rank saved' });
+app.post('/api/admin/rank', requireAdminAuth, async (req, res) => {
+    try {
+        const { id, price, discordRoleId, benefits, commands } = req.body;
+        if (!id || !price) return res.status(400).json({ success: false, message: 'ID dan Price wajib diisi' });
+        await saveRank(id, price, '#00AAFF', discordRoleId, benefits, commands);
+        res.json({ success: true, message: 'Rank saved' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-app.delete('/api/admin/rank/:id', requireAdminAuth, (req, res) => {
-    deleteRank(req.params.id);
-    res.json({ success: true, message: 'Rank deleted' });
+app.delete('/api/admin/rank/:id', requireAdminAuth, async (req, res) => {
+    try {
+        await deleteRank(req.params.id);
+        res.json({ success: true, message: 'Rank deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-// Protected Promo Management
-app.post('/api/admin/promo', requireAdminAuth, (req, res) => {
-    const { code, discountPercent, maxUses } = req.body;
-    if (!code || !discountPercent || !maxUses) return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
-    savePromo(code, discountPercent, maxUses);
-    res.json({ success: true, message: 'Promo saved' });
+app.post('/api/admin/promo', requireAdminAuth, async (req, res) => {
+    try {
+        const { code, discountPercent, maxUses } = req.body;
+        if (!code || !discountPercent || !maxUses) return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
+        await savePromo(code, discountPercent, maxUses);
+        res.json({ success: true, message: 'Promo saved' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
-app.delete('/api/admin/promo/:code', requireAdminAuth, (req, res) => {
-    deletePromo(req.params.code);
-    res.json({ success: true, message: 'Promo deleted' });
+app.delete('/api/admin/promo/:code', requireAdminAuth, async (req, res) => {
+    try {
+        await deletePromo(req.params.code);
+        res.json({ success: true, message: 'Promo deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // --- MIDTRANS WEBHOOK ---

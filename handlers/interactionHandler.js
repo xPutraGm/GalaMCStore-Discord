@@ -10,13 +10,14 @@ const {
     StringSelectMenuOptionBuilder 
 } = require('discord.js');
 const { coreApi } = require('../config/midtrans');
-const { getRanksData, saveRanksData, PAYMENT_EXPIRY_MINUTES, activeTransactions } = require('../store/transactions');
+const { getRanksData, getPromosData, savePromo, getSalesStats } = require('../utils/db');
+const { PAYMENT_EXPIRY_MINUTES, activeTransactions } = require('../store/transactions');
 const { sendRconCommand } = require('../utils/rcon');
 
 async function handleInteraction(interaction) {
     if (!interaction) return;
 
-    const ranksData = getRanksData();
+    const ranksData = await getRanksData();
 
     // HELPER BUILD EMBED KATALOG
     function buildCatalogEmbed(client) {
@@ -28,7 +29,6 @@ async function handleInteraction(interaction) {
             .setTimestamp();
 
         for (const [rankName, rankInfo] of Object.entries(ranksData)) {
-            if (rankName === 'promos' || rankName === 'salesHistory') continue;
             catalogEmbed.addFields({
                 name: `✨ Rank ${rankName} - Rp ${rankInfo.price.toLocaleString('id-ID')}`,
                 value: (rankInfo.benefits && rankInfo.benefits.length > 0 ? rankInfo.benefits.join('\n') : '• Benefit belum diisi') + '\n\u200B',
@@ -44,7 +44,6 @@ async function handleInteraction(interaction) {
 
         const catalogEmbed = buildCatalogEmbed(interaction.client);
         
-        // 2 TOMBOL TERPISAH: BUY & GIFT
         const buySelfBtn = new ButtonBuilder()
             .setCustomId('btn_open_modal_self')
             .setLabel('🛒 Buy Rank (Self)')
@@ -129,7 +128,7 @@ async function handleInteraction(interaction) {
         await interaction.showModal(modal);
     }
 
-    // === 3. SUBMIT MODAL (SELF / GIFT) -> CHECK PROMO & SELECT RANK ===
+    // === 3. SUBMIT MODAL (SELF / GIFT) ===
     if (interaction.isModalSubmit() && (interaction.customId === 'modal_buy_self' || interaction.customId === 'modal_buy_gift')) {
         const isGift = interaction.customId === 'modal_buy_gift';
         
@@ -137,16 +136,14 @@ async function handleInteraction(interaction) {
         const giftDiscordId = isGift ? interaction.fields.getTextInputValue('input_gift_discord_id').trim() : '';
         const promoCode = interaction.fields.getTextInputValue('input_promo_code').trim().toUpperCase();
 
-        // Tentukan Discord ID Penerima Role (Jika Gift diisi ID teman, kalau Self / Kosong pake ID pembeli)
         const targetDiscordId = giftDiscordId ? giftDiscordId : interaction.user.id;
         const isTrueGift = isGift && giftDiscordId && giftDiscordId !== interaction.user.id;
 
         let appliedDiscount = 0;
         let promoSuccessText = '';
 
-        // VALIDASI KODE PROMO
         if (promoCode) {
-            const promos = ranksData.promos || {};
+            const promos = await getPromosData();
             const promo = promos[promoCode];
 
             if (promo && promo.usedCount < promo.maxUses) {
@@ -162,8 +159,6 @@ async function handleInteraction(interaction) {
             .setPlaceholder('👑 Pilih Rank Yang Ingin Dibeli...');
 
         for (const [rankName, rankInfo] of Object.entries(ranksData)) {
-            if (rankName === 'promos' || rankName === 'salesHistory') continue;
-
             let finalPrice = rankInfo.price;
             if (appliedDiscount > 0) {
                 finalPrice = Math.round(finalPrice * (1 - appliedDiscount / 100));
@@ -187,7 +182,7 @@ async function handleInteraction(interaction) {
         await interaction.reply({ embeds: [rankEmbed], components: [row], ephemeral: true });
     }
 
-    // === 4. SELECT RANK -> SMART RANK VERIFICATION & PAYMENT METHOD ===
+    // === 4. SELECT RANK ===
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('select_rank_only_')) {
         await interaction.deferUpdate();
 
@@ -199,7 +194,6 @@ async function handleInteraction(interaction) {
 
         const targetRankConfig = ranksData[selectedPackage];
 
-        // SMART VERIFICATION: Cek Role Discord (Bisa Cek ke Diri Sendiri atau Teman)
         try {
             const guild = interaction.guild;
             if (guild && targetRankConfig?.discordRoleId) {
@@ -215,10 +209,9 @@ async function handleInteraction(interaction) {
                 }
             }
         } catch (e) {
-            // Ignore error jika member tidak ada di guild
+            // Member tidak ada di guild
         }
 
-        // Kalkulasi Harga Diskon
         let finalPrice = targetRankConfig.price;
         if (appliedDiscount > 0) {
             finalPrice = Math.round(finalPrice * (1 - appliedDiscount / 100));
@@ -307,23 +300,22 @@ async function handleInteraction(interaction) {
         }
     }
 
-    // === 6. COMMAND ADMIN PROMO MANAGEMENT ===
+    // === 6. COMMAND ADMIN PROMO ===
     if (interaction.isChatInputCommand() && interaction.commandName === 'admin-promo') {
         const sub = interaction.options.getSubcommand();
-        if (!ranksData.promos) ranksData.promos = {};
 
         if (sub === 'add') {
             const code = interaction.options.getString('code').toUpperCase().trim();
             const percent = interaction.options.getInteger('percent');
             const maxUse = interaction.options.getInteger('max_use');
 
-            ranksData.promos[code] = { discountPercent: percent, maxUses: maxUse, usedCount: 0 };
-            saveRanksData(ranksData);
+            await savePromo(code, percent, maxUse);
 
-            await interaction.reply({ content: `✅ Kode Promo **${code}** (Diskon ${percent}%, Max ${maxUse}x pakai) berhasil dibuat!`, ephemeral: true });
+            await interaction.reply({ content: `✅ Kode Promo **${code}** (Diskon ${percent}%, Max ${maxUse}x pakai) berhasil dibuat ke MySQL!`, ephemeral: true });
         } else if (sub === 'list') {
+            const promos = await getPromosData();
             let text = '🎟️ **DAFTAR KODE PROMO AKTIF:**\n';
-            for (const [code, info] of Object.entries(ranksData.promos)) {
+            for (const [code, info] of Object.entries(promos)) {
                 text += `• **${code}**: Diskon ${info.discountPercent}% (${info.usedCount}/${info.maxUses}x digunakan)\n`;
             }
             await interaction.reply({ content: text || 'Belum ada promo aktif.', ephemeral: true });
@@ -332,12 +324,11 @@ async function handleInteraction(interaction) {
 
     // === 7. COMMAND ADMIN STATS ===
     if (interaction.isChatInputCommand() && interaction.commandName === 'admin-stats') {
-        const history = ranksData.salesHistory || [];
-        const totalRevenue = history.reduce((acc, curr) => acc + curr.amount, 0);
+        const stats = await getSalesStats();
 
         const embed = new EmbedBuilder()
             .setTitle('📊 LAPORAN OMSET & PENJUALAN TOKO')
-            .setDescription(`**Total Pemasukan Clean:** Rp ${totalRevenue.toLocaleString('id-ID')}\n**Total Transaksi Lunas:** ${history.length} Transaksi`)
+            .setDescription(`**Total Pemasukan Clean:** Rp ${stats.totalRevenue.toLocaleString('id-ID')}\n**Total Transaksi Lunas:** ${stats.totalTransactions} Transaksi`)
             .setColor('#57F287')
             .setTimestamp();
 

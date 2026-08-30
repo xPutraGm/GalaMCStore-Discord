@@ -1,18 +1,8 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { coreApi, isProd } = require('../config/midtrans');
-const { getRanksData } = require('../utils/db');
+const { coreApi } = require('../config/midtrans');
+const { getRanksData, recordSale } = require('../utils/db');
 const { sendRconCommand } = require('../utils/rcon');
-
-// Import activeTransactions jika ada file store/transactions.js, 
-// atau fallback menggunakan Global Map jika belum di-export.
-let activeTransactions;
-try {
-    const storeTx = require('../store/transactions');
-    activeTransactions = storeTx.activeTransactions || storeTx;
-} catch (e) {
-    if (!global.activeTransactions) global.activeTransactions = new Map();
-    activeTransactions = global.activeTransactions;
-}
+const { activeTransactions } = require('../store/transactions');
 
 async function handleWebhook(req, res, client) {
     console.log('\n========================================');
@@ -30,7 +20,7 @@ async function handleWebhook(req, res, client) {
         const packageType = statusResponse.item_details?.[0]?.id?.toUpperCase() || 'VIP';
         const pdfReceiptUrl = statusResponse.pdf_url || `https://app.sandbox.midtrans.com/snap/v1/transactions/${statusResponse.transaction_id}/pdf`;
         
-        const ranksData = getRanksData();
+        const ranksData = await getRanksData();
         const targetRankConfig = ranksData[packageType];
         const amountPaid = parseFloat(statusResponse.gross_amount) || 0;
 
@@ -40,10 +30,12 @@ async function handleWebhook(req, res, client) {
         if (isPaid) {
             console.log(`\n✅ [PEMBAYARAN LUNAS] Memulai Eksekusi Multi-System...`);
 
-            // 1. DYNAMIC MULTI-COMMAND RCON EXECUTION (WITH PLACEHOLDERS)
+            // SIMPAN REKAP PENJUALAN KE MYSQL
+            await recordSale(orderId, mcUsername, discordId, packageType, amountPaid);
+
+            // 1. DYNAMIC MULTI-COMMAND RCON EXECUTION
             let commandsToRun = targetRankConfig?.commands || [];
             
-            // Fallback jika belum ada custom command di database
             if (!Array.isArray(commandsToRun) || commandsToRun.length === 0) {
                 commandsToRun = [`luckperms user ${mcUsername} parent set ${packageType.toLowerCase()}`];
             }
@@ -51,7 +43,6 @@ async function handleWebhook(req, res, client) {
             console.log(`🚀 Mengirim ${commandsToRun.length} RCON Command(s) ke Server MC...`);
             
             for (let rawCmd of commandsToRun) {
-                // Parse Placeholders: {player}, {rank}, {price}
                 const parsedCmd = rawCmd
                     .replace(/{player}/g, mcUsername)
                     .replace(/{rank}/g, packageType)
@@ -69,7 +60,6 @@ async function handleWebhook(req, res, client) {
 
                         if (member && targetRankConfig?.discordRoleId) {
                             await member.roles.add(targetRankConfig.discordRoleId);
-                            // Jika upgrade dari VIP ke MVP, lepas Role VIP lama jika dikonfigurasi
                             if (packageType === 'MVP' && ranksData['VIP']?.discordRoleId) {
                                 await member.roles.remove(ranksData['VIP'].discordRoleId);
                             }
@@ -106,8 +96,8 @@ async function handleWebhook(req, res, client) {
                 }
             }
 
-            // 4. UPDATE EMBED DISCORD LIVE REAL-TIME (SAFE CHECK & FIX)
-            if (activeTransactions && typeof activeTransactions.has === 'function' && activeTransactions.has(orderId)) {
+            // 4. UPDATE EMBED DISCORD LIVE REAL-TIME
+            if (activeTransactions && activeTransactions.has(orderId)) {
                 const savedTx = activeTransactions.get(orderId);
                 if (savedTx && savedTx.interaction) {
                     try {
