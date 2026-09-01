@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GalaStore — Admin Workspace</title>
+    <title>GalavectMC — Admin Workspace</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -17,25 +17,21 @@
                 extend: {
                     colors: {
                         dc: {
-                            brand: '#5865F2',
-                            brandHover: '#4752C4',
-                            rail: '#1E1F22',      /* Terdalam (Kiri) */
-                            sidebar: '#2B2D31',   /* Channel List */
-                            main: '#313338',      /* Area Konten Utama */
-                            input: '#1E1F22',     /* Background text box */
-                            floating: '#2B2D31',  /* Modals */
-                            textNorm: '#DBDEE1',
-                            textMuted: '#949BA4',
-                            textHead: '#F2F3F5',
-                            hoverBg: '#3F4147',   /* Hover state items */
-                            activeBg: '#404249',  /* Active channel */
-                            userPanel: '#232428', /* Bottom left profile */
-                            green: '#23A559',
-                            yellow: '#F0B232',
-                            red: '#DA373C'
+                            brand: '#5865F2', brandHover: '#4752C4',
+                            rail: '#1E1F22', sidebar: '#2B2D31',
+                            main: '#313338', input: '#1E1F22',
+                            floating: '#2B2D31', textNorm: '#DBDEE1',
+                            textMuted: '#949BA4', textHead: '#F2F3F5',
+                            hoverBg: '#3F4147', activeBg: '#404249',
+                            userPanel: '#232428', green: '#23A559',
+                            yellow: '#F0B232', red: '#DA373C',
+                            embedBg: '#2B2D31', terminal: '#111214'
                         }
                     },
-                    fontFamily: { sans: ['gg sans', 'Inter', 'sans-serif'] }
+                    fontFamily: { 
+                        sans: ['gg sans', 'Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
                 }
             }
         }
@@ -43,72 +39,48 @@
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* NATIVE DISCORD SCROLLBAR */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #2B2D31; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #1A1B1E; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #111214; }
-        
-        .main-scroll::-webkit-scrollbar-track { background: transparent; }
-
+        .hidden-scrollbar::-webkit-scrollbar { display: none; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* AUTHENTIC DISCORD TOOLTIP */
         .dc-tooltip-group { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; }
         .dc-tooltip {
-            position: absolute; left: 100%; margin-left: 16px;
-            background-color: #111214; color: #F2F3F5;
-            font-size: 13px; font-weight: 600; padding: 6px 12px;
-            border-radius: 6px; box-shadow: 0 8px 16px rgba(0,0,0,0.24);
-            white-space: nowrap; pointer-events: none;
-            opacity: 0; transform: scale(0.95);
-            transition: all 0.1s ease-out; z-index: 100;
+            position: absolute; left: 100%; margin-left: 16px; background-color: #111214; color: #F2F3F5;
+            font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 6px; box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+            white-space: nowrap; pointer-events: none; opacity: 0; transform: scale(0.95); transition: all 0.1s ease-out; z-index: 100;
         }
-        .dc-tooltip::before {
-            content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%);
-            border-width: 5px; border-style: solid; border-color: transparent #111214 transparent transparent;
-        }
+        .dc-tooltip::before { content: ''; position: absolute; right: 100%; top: 50%; transform: translateY(-50%); border-width: 5px; border-style: solid; border-color: transparent #111214 transparent transparent; }
         .dc-tooltip-group:hover .dc-tooltip { opacity: 1; transform: scale(1); }
 
-        /* SQUIRCLE HOVER & ACTIVE PILL */
-        .dc-pill {
-            position: absolute; left: -4px; top: 50%; transform: translateY(-50%);
-            width: 8px; height: 8px; background-color: white; border-radius: 4px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0;
-        }
+        .dc-pill { position: absolute; left: -4px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background-color: white; border-radius: 4px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; }
         .dc-tooltip-group:hover .dc-pill { opacity: 1; height: 20px; border-radius: 0 4px 4px 0; left: 0; width: 4px; }
         .dc-tooltip-group.active .dc-pill { opacity: 1; height: 40px; border-radius: 0 4px 4px 0; left: 0; width: 4px; }
         
-        .dc-icon {
-            width: 48px; height: 48px; background-color: #313338; color: #DBDEE1;
-            border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 20px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
-        }
+        .dc-icon { width: 48px; height: 48px; background-color: #313338; color: #DBDEE1; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
         .dc-tooltip-group:hover .dc-icon { border-radius: 16px; background-color: #5865F2; color: white; }
         .dc-tooltip-group.active .dc-icon { border-radius: 16px; background-color: #5865F2; color: white; }
-        .dc-tooltip-group.green-hover:hover .dc-icon { background-color: #23A559; }
 
-        /* NATIVE DISCORD INPUTS */
-        .dc-input {
-            width: 100%; background-color: #1E1F22; color: #DBDEE1; border: none;
-            padding: 10px 12px; border-radius: 4px; outline: none; font-size: 14px;
-        }
+        .dc-input { width: 100%; background-color: #1E1F22; color: #DBDEE1; border: none; padding: 10px 12px; border-radius: 4px; outline: none; font-size: 14px; }
         .dc-input:focus { box-shadow: 0 0 0 1px #00A8FC; }
-        .dc-label { display: block; font-size: 12px; font-weight: 700; color: #B5BAC1; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.02em; }
+        .dc-label { display: block; font-size: 12px; font-weight: 700; color: #B5BAC1; text-transform: uppercase; margin-bottom: 8px; }
         
-        /* DISCORD TOGGLE SWITCH */
         .dc-toggle-bg { width: 40px; height: 24px; border-radius: 12px; background-color: #80848E; transition: background-color 0.2s; position: relative; }
         .peer:checked ~ .dc-toggle-bg { background-color: #23A559; }
         .dc-toggle-dot { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: transform 0.2s; }
         .peer:checked ~ .dc-toggle-bg .dc-toggle-dot { transform: translateX(16px); }
 
-        /* SCROLL BUG FIX: Ensure containers handle their own scroll */
-        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        .popout-menu { transform-origin: top right; transition: all 0.15s ease-out; opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .popout-menu.active { opacity: 1; transform: scale(1); pointer-events: auto; }
+
+        html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #1E1F22; }
     </style>
 </head>
-<body class="bg-dc-main text-dc-textNorm font-sans antialiased h-screen flex flex-col">
+<body class="text-dc-textNorm font-sans antialiased h-screen flex flex-col p-1.5 gap-1.5">
 
-    <!-- LOGIN SCREEN -->
+    <!-- LOGIN OVERLAY -->
     <div id="loginOverlay" class="fixed inset-0 bg-[#111214] z-50 flex flex-col justify-center items-center p-6 transition-opacity duration-300">
         <div class="w-full max-w-[480px] bg-dc-main p-8 rounded-[8px] shadow-2xl">
             <div class="mb-6 text-center">
@@ -126,634 +98,722 @@
         </div>
     </div>
 
-    <!-- DISCORD APP LAYOUT -->
-    <div id="adminContent" class="hidden flex-1 flex h-full overflow-hidden">
+    <!-- MAIN DISCORD LAYOUT -->
+    <div id="adminContent" class="hidden flex-1 flex h-full overflow-hidden rounded-xl bg-dc-rail">
         
-        <!-- LEFTMOST SERVER RAIL -->
-        <div class="w-[72px] bg-dc-rail flex flex-col items-center py-3 gap-2 flex-shrink-0 z-30 pt-3 h-full overflow-y-auto hidden-scrollbar">
-            
-            <!-- Direct Message Icon (Bot Home) -->
+        <!-- LEFTMOST RAIL -->
+        <div class="w-[72px] bg-dc-rail flex flex-col items-center py-3 gap-2 flex-shrink-0 z-30 h-full overflow-y-auto hidden-scrollbar">
             <div class="dc-tooltip-group active" onclick="switchTab('ranks')">
                 <span class="dc-pill"></span>
-                <div class="dc-icon">
-                    <i class="fa-brands fa-discord text-[26px]"></i>
-                </div>
-                <div class="dc-tooltip">Home</div>
+                <div class="dc-icon"><i class="fa-brands fa-discord text-[26px]"></i></div>
+                <div class="dc-tooltip">Direct Messages</div>
             </div>
-
             <div class="w-8 h-[2px] bg-[#35363C] rounded-full my-1"></div>
-
-            <!-- Server Icon: Ranks -->
+            
             <div class="dc-tooltip-group" onclick="switchTab('ranks')">
                 <span class="dc-pill"></span>
-                <div class="dc-icon"><i class="fa-solid fa-gem text-xl"></i></div>
-                <div class="dc-tooltip">Ranks Catalog</div>
+                <div class="w-12 h-12 rounded-[16px] overflow-hidden cursor-pointer shadow-md border-2 border-dc-brand">
+                    <img src="https://mc-heads.net/avatar/steve/100" class="w-full h-full object-cover">
+                </div>
+                <div class="dc-tooltip">GalavectMC Dashboard</div>
             </div>
 
-            <!-- Server Icon: Promo -->
-            <div class="dc-tooltip-group" onclick="switchTab('promos')">
-                <span class="dc-pill"></span>
-                <div class="dc-icon"><i class="fa-solid fa-ticket text-xl"></i></div>
-                <div class="dc-tooltip">Promo Vouchers</div>
-            </div>
-
-            <!-- Server Icon: Settings -->
-            <div class="dc-tooltip-group" onclick="switchTab('settings')">
-                <span class="dc-pill"></span>
-                <div class="dc-icon"><i class="fa-solid fa-gear text-xl"></i></div>
-                <div class="dc-tooltip">System Settings</div>
-            </div>
-
-            <!-- Bottom: Midtrans Link -->
-            <div class="dc-tooltip-group green-hover mt-auto mb-2">
-                <span class="dc-pill"></span>
-                <a href="https://dashboard.sandbox.midtrans.com" target="_blank" class="dc-icon">
-                    <i class="fa-solid fa-wallet text-xl"></i>
-                </a>
-                <div class="dc-tooltip">Midtrans Dashboard</div>
+            <div class="dc-tooltip-group mt-2 text-dc-green hover:text-white" onclick="switchTab('settings')">
+                <div class="dc-icon bg-dc-main !text-inherit hover:!bg-dc-green"><i class="fa-solid fa-plus"></i></div>
+                <div class="dc-tooltip">System Configurations</div>
             </div>
         </div>
 
         <!-- CHANNEL SIDEBAR -->
-        <div class="w-60 bg-dc-sidebar flex flex-col flex-shrink-0 rounded-tl-lg h-full">
-            
-            <!-- Guild Header -->
-            <div class="h-12 border-b border-[#1E1F22]/40 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] hover:bg-dc-hoverBg cursor-pointer transition-colors flex-shrink-0">
-                <span class="font-bold text-[15px] text-dc-textHead truncate">GalaMC Server</span>
+        <div class="w-60 bg-dc-sidebar flex flex-col flex-shrink-0 rounded-tl-xl rounded-bl-xl border-r border-dc-rail/40 h-full overflow-hidden shadow-lg z-20">
+            <div class="h-12 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] hover:bg-dc-hoverBg cursor-pointer transition-colors flex-shrink-0">
+                <span class="font-bold text-[15px] text-dc-textHead truncate">GalavectMC</span>
                 <i class="fa-solid fa-chevron-down text-xs text-dc-textNorm"></i>
             </div>
 
-            <!-- Channel List (Scrollable Area) -->
-            <div class="flex-1 overflow-y-auto px-2 py-4 space-y-5">
-                
+            <div class="flex-1 overflow-y-auto px-2 py-4 space-y-5 hidden-scrollbar">
                 <div>
-                    <div class="px-2 mb-1 flex items-center gap-1 text-[12px] font-bold text-dc-textMuted uppercase hover:text-dc-textNorm cursor-pointer">
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i> STORE MANAGEMENT
+                    <div class="px-2 mb-1 flex items-center justify-between text-[12px] font-bold text-dc-textMuted uppercase">
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-chevron-down text-[10px]"></i> MAIN</div>
                     </div>
                     <div class="space-y-[2px] mt-1 text-[15px] font-medium text-dc-textMuted">
-                        <button onclick="switchTab('ranks')" id="tabBtnRanks" class="w-full px-2 py-1.5 rounded-[4px] flex items-center gap-1.5 bg-dc-activeBg text-white">
+                        <button onclick="switchTab('ranks')" id="tabBtnRanks" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 bg-dc-activeBg text-white">
                             <i class="fa-solid fa-hashtag text-dc-textMuted text-lg w-5 text-center"></i> ranks-catalog
                         </button>
-                        <button onclick="switchTab('promos')" id="tabBtnPromos" class="w-full px-2 py-1.5 rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
+                        <button onclick="switchTab('promos')" id="tabBtnPromos" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
                             <i class="fa-solid fa-hashtag text-dc-textMuted text-lg w-5 text-center"></i> promo-vouchers
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <div class="px-2 mb-1 flex items-center gap-1 text-[12px] font-bold text-dc-textMuted uppercase hover:text-dc-textNorm cursor-pointer">
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i> CONFIGURATION
+                    <div class="px-2 mb-1 flex items-center justify-between text-[12px] font-bold text-dc-textMuted uppercase">
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-chevron-down text-[10px]"></i> ANALYTICS</div>
                     </div>
                     <div class="space-y-[2px] mt-1 text-[15px] font-medium text-dc-textMuted">
-                        <button onclick="switchTab('settings')" id="tabBtnSettings" class="w-full px-2 py-1.5 rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
-                            <i class="fa-solid fa-gear text-dc-textMuted text-[16px] w-5 text-center"></i> bot-settings
+                        <button onclick="switchTab('statistics')" id="tabBtnStats" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
+                            <i class="fa-solid fa-chart-simple text-dc-textMuted text-[15px] w-5 text-center"></i> statistics
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="px-2 mb-1 flex items-center justify-between text-[12px] font-bold text-dc-textMuted uppercase">
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-chevron-down text-[10px]"></i> SYSTEM</div>
+                    </div>
+                    <div class="space-y-[2px] mt-1 text-[15px] font-medium text-dc-textMuted">
+                        <button onclick="switchTab('settings')" id="tabBtnSettings" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
+                            <i class="fa-solid fa-gear text-dc-textMuted text-[15px] w-5 text-center"></i> bot-settings
+                        </button>
+                        <button onclick="switchTab('security')" id="tabBtnSecurity" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm">
+                            <i class="fa-solid fa-shield-halved text-dc-textMuted text-[14px] w-5 text-center"></i> admin-security
+                        </button>
+                        <button onclick="switchTab('console')" id="tabBtnConsole" class="w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm text-dc-brand">
+                            <i class="fa-solid fa-terminal text-dc-brand text-[13px] w-5 text-center"></i> system-console
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- USER PANEL (Bottom Left) -->
-            <div class="h-[52px] bg-dc-userPanel px-2 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center gap-2 hover:bg-[#3F4147] p-1.5 rounded-[6px] cursor-pointer transition-colors w-full overflow-hidden mr-1">
+            <!-- USER PANEL -->
+            <div class="h-[52px] bg-dc-userPanel px-2 flex items-center justify-between flex-shrink-0 relative">
+                <div class="flex items-center gap-2 hover:bg-[#3F4147] p-1 rounded-[6px] cursor-pointer transition-colors w-full overflow-hidden mr-1">
                     <div class="relative flex-shrink-0">
                         <div class="w-8 h-8 rounded-full bg-dc-brand flex items-center justify-center font-bold text-white text-xs overflow-hidden">
-                            <!-- Avatar Admin -->
-                            <img src="https://mc-heads.net/avatar/steve/100" alt="Admin" class="w-full h-full object-cover">
+                            <img src="https://mc-heads.net/avatar/steve/100" class="w-full h-full object-cover">
                         </div>
-                        <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-dc-userPanel rounded-full flex items-center justify-center">
+                        <div class="absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] bg-dc-userPanel rounded-full flex items-center justify-center">
                             <div class="w-2.5 h-2.5 bg-dc-green rounded-full"></div>
                         </div>
                     </div>
                     <div class="leading-none truncate pr-1">
-                        <div class="text-[14px] font-semibold text-white truncate">Administrator</div>
-                        <div class="text-[12px] text-dc-textMuted mt-1 truncate">Online</div>
+                        <div class="text-[13px] font-bold text-white truncate">Administrator</div>
+                        <div class="text-[11px] text-dc-textMuted mt-1 truncate">GalavectMC Admin</div>
                     </div>
                 </div>
-                <!-- Action Icons -->
-                <div class="flex items-center gap-0.5 text-dc-textNorm flex-shrink-0">
-                    <button class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[18px]" title="Mute">
-                        <i class="fa-solid fa-microphone-slash"></i>
+                <div class="flex items-center gap-0 text-dc-textNorm flex-shrink-0">
+                    <button class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[16px] transition-colors" title="Toggle Audio FX" onclick="toggleBtnState(this, 'fa-microphone', 'fa-microphone-slash', 'text-dc-red')">
+                        <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <button class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[18px]" title="Deafen">
+                    <button class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[16px] transition-colors" title="Toggle Notifications" onclick="toggleBtnState(this, 'fa-headphones', 'fa-ear-deaf', 'text-dc-red')">
                         <i class="fa-solid fa-headphones"></i>
                     </button>
-                    <button onclick="logoutAdmin()" class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[18px] text-dc-red" title="Log Out">
-                        <i class="fa-solid fa-power-off"></i>
+                    <button onclick="switchTab('security')" class="w-8 h-8 hover:bg-[#3F4147] rounded-[6px] flex items-center justify-center text-[16px] transition-colors" title="Security Settings">
+                        <i class="fa-solid fa-gear"></i>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- MAIN CONTENT AREA -->
-        <div class="flex-1 flex flex-col bg-dc-main min-w-0 h-full relative">
+        <div class="flex-1 flex bg-dc-main min-w-0 h-full relative rounded-tr-xl rounded-br-xl shadow-2xl overflow-hidden">
             
-            <!-- Top Channel Title Bar -->
-            <div class="h-12 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] bg-dc-main z-10 flex-shrink-0">
-                <div class="flex items-center gap-2 text-white font-bold text-[16px] truncate">
-                    <i id="headerIcon" class="fa-solid fa-hashtag text-dc-textMuted text-xl"></i>
-                    <span id="channelTitle">ranks-catalog</span>
-                    <span class="w-[1px] h-6 bg-dc-sidebar mx-2"></span>
-                    <span id="channelDesc" class="text-[14px] font-medium text-dc-textMuted truncate">Atur katalog produk dan command RCON</span>
-                </div>
-                <div class="flex items-center gap-4 flex-shrink-0">
-                    <div class="flex items-center bg-dc-input px-2 py-1 rounded-[4px] w-36 overflow-hidden">
-                        <input type="text" placeholder="Search" class="bg-transparent border-none outline-none text-[14px] w-full text-dc-textNorm placeholder-dc-textMuted">
-                        <i class="fa-solid fa-magnifying-glass text-xs text-dc-textMuted"></i>
-                    </div>
-                    <i class="fa-solid fa-bell text-dc-textMuted hover:text-white cursor-pointer text-lg"></i>
-                    <i class="fa-solid fa-thumbtack text-dc-textMuted hover:text-white cursor-pointer text-lg"></i>
-                    <i class="fa-solid fa-users text-dc-textMuted hover:text-white cursor-pointer text-lg"></i>
-                </div>
-            </div>
-
-            <!-- Content Body (Scrollable Container Fixed) -->
-            <div class="flex-1 overflow-y-auto p-6 main-scroll">
+            <div class="flex-1 flex flex-col h-full overflow-hidden">
                 
-                <!-- SECTION: RANKS -->
-                <section id="sectionRanks" class="max-w-[1000px] mx-auto w-full">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2">
-                                <i class="fa-solid fa-list text-dc-textMuted"></i> In-Game Ranks
-                            </h2>
-                        </div>
-                        <button onclick="openRankModal()" class="bg-dc-brand hover:bg-dc-brandHover text-white text-[14px] font-medium px-4 py-1.5 rounded-[4px] transition-colors">
-                            Create New Rank
-                        </button>
+                <!-- TOP HEADER BAR -->
+                <div class="h-12 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] bg-dc-main z-20 flex-shrink-0 border-b border-dc-rail/20">
+                    <div class="flex items-center gap-2 text-white font-bold text-[16px] truncate">
+                        <i id="headerIcon" class="fa-solid fa-hashtag text-dc-textMuted text-xl"></i>
+                        <span id="channelTitle">ranks-catalog</span>
                     </div>
-                    <div id="rankGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                </section>
-
-                <!-- SECTION: PROMOS -->
-                <section id="sectionPromos" class="hidden max-w-[1000px] mx-auto w-full">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2">
-                                <i class="fa-solid fa-tags text-dc-textMuted"></i> Promo Vouchers
-                            </h2>
-                        </div>
-                        <button onclick="openPromoModal()" class="bg-dc-brand hover:bg-dc-brandHover text-white text-[14px] font-medium px-4 py-1.5 rounded-[4px] transition-colors">
-                            Generate Code
-                        </button>
-                    </div>
-                    <div id="promoGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-                </section>
-
-                <!-- SECTION: SETTINGS -->
-                <section id="sectionSettings" class="hidden max-w-[800px] mx-auto w-full pb-20">
-                    <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2 mb-6">
-                        <i class="fa-solid fa-sliders text-dc-textMuted"></i> Configuration & Integrations
-                    </h2>
                     
-                    <form id="settingsForm" oninput="markDirty()" onchange="markDirty()" class="space-y-6">
-                        
-                        <!-- Block 1 -->
-                        <div class="bg-dc-sidebar rounded-[8px] p-5 shadow-sm">
-                            <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-4">Bot Presence Config</h3>
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="dc-label">Online Status</label>
-                                        <select id="settingBotStatus" class="dc-input cursor-pointer">
-                                            <option value="online">Online</option>
-                                            <option value="idle">Idle</option>
-                                            <option value="dnd">Do Not Disturb</option>
-                                            <option value="invisible">Invisible</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="dc-label">Activity Type</label>
-                                        <select id="settingBotActType" class="dc-input cursor-pointer">
-                                            <option value="Custom">Custom Status</option>
-                                            <option value="Playing">Playing</option>
-                                            <option value="Listening">Listening to</option>
-                                            <option value="Watching">Watching</option>
-                                            <option value="Streaming">Streaming</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="dc-label">Activity Message</label>
-                                    <input type="text" id="settingBotActText" class="dc-input" placeholder="e.g. Ketik /buyrank">
+                    <div class="flex items-center gap-3 flex-shrink-0 text-dc-textMuted relative">
+                        <!-- Threads / Action Log -->
+                        <div class="relative">
+                            <i class="fa-solid fa-hashtag hover:text-white cursor-pointer text-[17px]" title="Action Logs" onclick="togglePopout('popoutLogs')"></i>
+                            <div id="popoutLogs" class="popout-menu absolute right-0 top-full mt-3 w-80 bg-dc-floating border border-dc-input rounded-[8px] shadow-2xl z-50 overflow-hidden">
+                                <div class="p-3 border-b border-dc-input font-bold text-white text-[14px]">Admin Action Logs</div>
+                                <div class="p-2 max-h-60 overflow-y-auto text-[12px] space-y-1" id="actionLogsContainer">
+                                    <div class="p-2 hover:bg-dc-hoverBg rounded cursor-pointer"><span class="text-dc-brand font-bold">@System</span> Workspace Loaded <div class="text-dc-textMuted text-[10px]">Just now</div></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Block 2 -->
-                        <div class="bg-dc-sidebar rounded-[8px] p-5 shadow-sm">
-                            <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-4">Store Rules & Maintenance</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="dc-label">Midtrans Payment Expiry (Minutes)</label>
-                                    <input type="number" id="settingPaymentExpiry" class="dc-input w-full md:w-1/2" placeholder="15">
+                        <!-- Notification Inbox -->
+                        <div class="relative">
+                            <i class="fa-solid fa-inbox hover:text-white cursor-pointer text-[17px] ml-1" title="Notification Inbox" onclick="togglePopout('popoutNotif')"></i>
+                            <div id="popoutNotif" class="popout-menu absolute right-0 top-full mt-3 w-80 bg-dc-floating border border-dc-input rounded-[8px] shadow-2xl z-50 overflow-hidden">
+                                <div class="p-3 border-b border-dc-input font-bold text-white text-[14px] flex justify-between">Inbox <span class="text-dc-brand cursor-pointer text-[12px] font-normal" onclick="this.parentNode.nextElementSibling.innerHTML='<div class=\'p-4 text-center text-dc-textMuted text-[13px]\'>All cleared!</div>'">Clear</span></div>
+                                <div class="p-4 text-center text-dc-textMuted text-[13px] flex flex-col items-center">
+                                    <i class="fa-solid fa-check-double text-3xl mb-2 opacity-20"></i> All caught up!
                                 </div>
-                                <div class="w-full h-[1px] bg-[#3F4147] my-4"></div>
-                                <div class="flex items-center justify-between">
+                            </div>
+                        </div>
+
+                        <i class="fa-solid fa-users hover:text-white cursor-pointer text-[17px] text-white" title="Toggle Sidebar" onclick="toggleRightSidebar()"></i>
+                        
+                        <!-- Search Bar -->
+                        <div class="flex items-center bg-dc-input px-2 py-0.5 rounded-[4px] w-48 overflow-hidden ml-1 border border-transparent focus-within:border-dc-brand transition-colors">
+                            <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Search..." class="bg-transparent border-none outline-none text-[13px] w-full text-dc-textNorm placeholder-dc-textMuted">
+                            <i class="fa-solid fa-magnifying-glass text-[12px]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENT BODY -->
+                <div class="flex-1 overflow-y-auto p-6 relative" id="mainScrollArea">
+                    
+                    <!-- SECTION: RANKS -->
+                    <section id="sectionRanks" class="max-w-[800px] w-full view-section">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2">In-Game Ranks</h2>
+                            <button onclick="openRankModal()" class="bg-dc-green hover:bg-[#1f934f] text-white text-[13px] font-medium px-4 py-1.5 rounded-[3px] transition-colors shadow">Add Rank</button>
+                        </div>
+                        <div id="rankGrid" class="space-y-4 searchable-container"></div>
+                    </section>
+
+                    <!-- SECTION: PROMOS -->
+                    <section id="sectionPromos" class="hidden max-w-[800px] w-full view-section">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-dc-textHead">Promo Vouchers</h2>
+                            <button onclick="openPromoModal()" class="bg-dc-brand hover:bg-dc-brandHover text-white text-[13px] font-medium px-4 py-1.5 rounded-[3px] transition-colors shadow">Generate Code</button>
+                        </div>
+                        <div id="promoGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 searchable-container"></div>
+                    </section>
+
+                    <!-- SECTION: STATISTICS -->
+                    <section id="sectionStats" class="hidden max-w-[900px] w-full view-section">
+                        <h2 class="text-xl font-bold text-dc-textHead mb-6">System & Sales Overview</h2>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="bg-dc-embedBg rounded-[8px] p-4 border-t-2 border-dc-brand shadow-sm">
+                                <p class="text-[11px] font-bold text-dc-textMuted uppercase">Bot Gateway Latency</p>
+                                <h3 id="statPing" class="text-xl font-bold text-dc-green mt-1">0 ms</h3>
+                            </div>
+                            <div class="bg-dc-embedBg rounded-[8px] p-4 border-t-2 border-dc-green shadow-sm">
+                                <p class="text-[11px] font-bold text-dc-textMuted uppercase">Uptime</p>
+                                <h3 id="statUptime" class="text-xl font-bold text-white mt-1">0s</h3>
+                            </div>
+                            <div class="bg-dc-embedBg rounded-[8px] p-4 border-t-2 border-dc-yellow shadow-sm">
+                                <p class="text-[11px] font-bold text-dc-textMuted uppercase">Active Promo Codes</p>
+                                <h3 id="statActivePromos" class="text-xl font-bold text-white mt-1">0 Code</h3>
+                            </div>
+                            <div class="bg-dc-embedBg rounded-[8px] p-4 border-t-2 border-purple-500 shadow-sm">
+                                <p class="text-[11px] font-bold text-dc-textMuted uppercase">RCON Link Status</p>
+                                <h3 class="text-xl font-bold text-dc-green mt-1 flex items-center gap-1.5"><span class="w-2 h-2 bg-dc-green rounded-full animate-pulse"></span> Active</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-dc-embedBg rounded-[8px] p-5 shadow-sm border border-dc-rail">
+                                <p class="text-[12px] font-bold text-dc-textMuted uppercase mb-1">Total Gross Revenue</p>
+                                <h3 id="statRevenue" class="text-3xl font-bold text-dc-green">Rp 0</h3>
+                            </div>
+                            <div class="bg-dc-embedBg rounded-[8px] p-5 shadow-sm border border-dc-rail">
+                                <p class="text-[12px] font-bold text-dc-textMuted uppercase mb-1">Total Transactions</p>
+                                <h3 id="statTx" class="text-3xl font-bold text-white">0</h3>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SECTION: SETTINGS -->
+                    <section id="sectionSettings" class="hidden max-w-[800px] w-full pb-20 view-section">
+                        <h2 class="text-xl font-bold text-dc-textHead mb-6">System Configurations</h2>
+                        <form id="settingsForm" oninput="markDirty()" onchange="markDirty()" class="space-y-4">
+                            
+                            <div class="bg-dc-embedBg rounded-[8px] p-5">
+                                <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-4">Bot Presence Config</h3>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <div class="text-[15px] font-medium text-white">Enable Maintenance Mode</div>
-                                        <div class="text-[13px] text-dc-textMuted mt-0.5">Mencegah player biasa membuka toko.</div>
+                                        <label class="dc-label">Online Status</label>
+                                        <select id="settingBotStatus" class="dc-input cursor-pointer"><option value="online">Online</option><option value="idle">Idle</option><option value="dnd">Do Not Disturb</option></select>
+                                    </div>
+                                    <div>
+                                        <label class="dc-label">Activity Type</label>
+                                        <select id="settingBotActType" class="dc-input cursor-pointer"><option value="Custom">Custom Status</option><option value="Playing">Playing</option><option value="Watching">Watching</option></select>
+                                    </div>
+                                </div>
+                                <label class="dc-label">Activity Message</label>
+                                <input type="text" id="settingBotActText" class="dc-input" placeholder="e.g. Ketik /buyrank">
+                            </div>
+
+                            <div class="bg-dc-embedBg rounded-[8px] p-5">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <div class="text-[15px] font-medium text-white">Maintenance Mode</div>
+                                        <div class="text-[13px] text-dc-textMuted mt-0.5">Tutup akses toko untuk player.</div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" id="settingMaintToggle" class="sr-only peer">
                                         <div class="dc-toggle-bg"><div class="dc-toggle-dot shadow-sm"></div></div>
                                     </label>
                                 </div>
-                                <div>
-                                    <input type="text" id="settingMaintText" class="dc-input mt-2" placeholder="Pesan error maintenance...">
+                                <input type="text" id="settingMaintText" class="dc-input mt-3" placeholder="Pesan error maintenance...">
+                            </div>
+
+                            <div class="bg-dc-embedBg rounded-[8px] p-5 border-l-4" id="embedPreviewBorder" style="border-color: #F1C40F;">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-[14px] font-bold text-white flex items-center gap-2"><i class="fa-brands fa-discord"></i> Public Live Feed</h3>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="settingFeedToggle" class="sr-only peer">
+                                        <div class="dc-toggle-bg"><div class="dc-toggle-dot shadow-sm"></div></div>
+                                    </label>
+                                </div>
+                                <div class="space-y-3">
+                                    <input type="text" id="settingFeedChannel" class="dc-input font-mono text-[13px]" placeholder="Channel ID Target">
+                                    <input type="text" id="settingFeedTitle" class="dc-input font-bold" placeholder="Embed Title">
+                                    <textarea id="settingFeedDesc" rows="2" class="dc-input resize-none text-[13px]" placeholder="Embed Description"></textarea>
+                                    <div class="flex gap-4">
+                                        <input type="color" id="settingFeedColorPicker" class="h-9 w-12 bg-dc-input rounded cursor-pointer p-0.5" onchange="document.getElementById('embedPreviewBorder').style.borderColor = this.value; markDirty()">
+                                        <input type="text" id="settingFeedFooter" class="dc-input text-[12px]" placeholder="Footer Text">
+                                    </div>
                                 </div>
                             </div>
+                        </form>
+                    </section>
+
+                    <!-- SECTION: SECURITY -->
+                    <section id="sectionSecurity" class="hidden max-w-[800px] w-full pb-20 view-section">
+                        <h2 class="text-xl font-bold text-dc-textHead mb-6">Admin Security</h2>
+                        
+                        <div class="bg-dc-embedBg rounded-[8px] p-5 mb-4">
+                            <h3 class="text-[14px] font-bold text-white mb-2"><i class="fa-solid fa-key mr-2 text-dc-brand"></i> Change Admin Password</h3>
+                            <p class="text-[13px] text-dc-textMuted mb-4">Ganti kata sandi admin secara langsung ke backend.</p>
+                            <form id="changePasswordForm" class="space-y-3">
+                                <div><label class="dc-label">Current Password</label><input type="password" id="currentAdminPass" class="dc-input" required></div>
+                                <div><label class="dc-label">New Password</label><input type="password" id="newAdminPass" class="dc-input" required></div>
+                                <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white px-5 py-2 rounded-[3px] text-[13px] font-medium transition-colors mt-2">Update Password</button>
+                            </form>
                         </div>
 
-                        <!-- Block 3 -->
-                        <div class="bg-dc-sidebar rounded-[8px] p-5 shadow-sm">
-                            <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-4">Catalog /buyrank Appearance</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="dc-label">Embed Title</label>
-                                    <input type="text" id="settingCatalogTitle" class="dc-input">
-                                </div>
-                                <div>
-                                    <label class="dc-label">Embed Description</label>
-                                    <textarea id="settingCatalogDesc" rows="2" class="dc-input resize-none"></textarea>
-                                </div>
-                                <div>
-                                    <label class="dc-label">Embed Hex Color</label>
-                                    <div class="flex gap-2 w-48">
-                                        <input type="color" id="settingCatalogColorPicker" class="h-9 w-12 bg-dc-input rounded cursor-pointer p-0.5 border border-[#3F4147]" onchange="document.getElementById('settingCatalogColor').value = this.value; markDirty()">
-                                        <input type="text" id="settingCatalogColor" class="dc-input uppercase font-mono text-[13px]" placeholder="#5865F2">
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mt-8 border-t border-dc-red/30 pt-6">
+                            <h3 class="text-[14px] font-bold text-dc-red mb-2">Danger Zone</h3>
+                            <button onclick="logoutAdmin()" class="border border-dc-red hover:bg-dc-red text-dc-red hover:text-white px-5 py-2 rounded-[3px] text-[13px] font-bold transition-colors">Logout All Sessions</button>
                         </div>
+                    </section>
 
-                        <!-- Block 4 -->
-                        <div class="bg-dc-sidebar rounded-[8px] p-5 shadow-sm">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-[12px] font-bold text-dc-textMuted uppercase">Public Purchase Feed</h3>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="settingFeedToggle" class="sr-only peer">
-                                    <div class="dc-toggle-bg"><div class="dc-toggle-dot shadow-sm"></div></div>
-                                </label>
-                            </div>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="dc-label">Discord Channel ID</label>
-                                    <input type="text" id="settingFeedChannel" class="dc-input font-mono" placeholder="1234567890">
-                                </div>
-                                <div>
-                                    <label class="dc-label">Title & Message Template</label>
-                                    <input type="text" id="settingFeedTitle" class="dc-input mb-2" placeholder="Title">
-                                    <textarea id="settingFeedDesc" rows="2" class="dc-input resize-none" placeholder="Message content"></textarea>
-                                    <div class="text-[12px] text-dc-textMuted mt-2 leading-relaxed">
-                                        Support placeholders: <code class="bg-[#1E1F22] px-1 py-0.5 rounded text-white">{player}</code> <code class="bg-[#1E1F22] px-1 py-0.5 rounded text-white">{rank}</code> <code class="bg-[#1E1F22] px-1 py-0.5 rounded text-white">{price}</code> <code class="bg-[#1E1F22] px-1 py-0.5 rounded text-white">{discord}</code>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="dc-label">Embed Color</label>
-                                        <div class="flex gap-2">
-                                            <input type="color" id="settingFeedColorPicker" class="h-9 w-12 bg-dc-input rounded cursor-pointer p-0.5 border border-[#3F4147]" onchange="document.getElementById('settingFeedColor').value = this.value; markDirty()">
-                                            <input type="text" id="settingFeedColor" class="dc-input uppercase font-mono text-[13px]" placeholder="#F1C40F">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="dc-label">Footer Text</label>
-                                        <input type="text" id="settingFeedFooter" class="dc-input" placeholder="Footer text">
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- SECTION: TERMINAL CONSOLE -->
+                    <section id="sectionConsole" class="hidden h-full flex flex-col view-section">
+                        <h2 class="text-xl font-bold text-dc-textHead mb-4 flex items-center gap-2"><i class="fa-solid fa-terminal text-dc-textMuted"></i> System Console</h2>
+                        <div class="flex-1 bg-dc-terminal rounded-t-[8px] border border-dc-rail p-4 font-mono text-[13px] overflow-y-auto space-y-1 shadow-inner" id="consoleOutput">
+                            <div class="text-dc-textMuted">GalaStore Interactive Terminal</div>
+                            <div class="text-dc-green mt-2">[SYSTEM] Ready to send commands to Backend Express.</div>
                         </div>
-                    </form>
-                </section>
+                        <form onsubmit="handleConsoleCommand(event)" class="bg-dc-input rounded-b-[8px] border-t-0 border border-dc-rail flex items-center px-3 py-2 shadow-sm">
+                            <span class="text-dc-green font-mono mr-2 font-bold">></span>
+                            <input type="text" id="consoleInput" class="bg-transparent border-none outline-none text-white font-mono text-[13px] w-full" placeholder="Enter command (e.g. say Hello)">
+                        </form>
+                    </section>
+                </div>
+
+                <!-- FLOATING ACTION BAR -->
+                <div id="discordFloatingBar" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#111214] shadow-[0_8px_24px_rgba(0,0,0,0.6)] border border-[#2B2D31] rounded-[8px] px-4 py-3 flex items-center justify-between w-[90%] max-w-[700px] z-40 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+                    <span class="text-[14px] font-medium text-white">Careful — you have unsaved changes!</span>
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="resetSettings()" class="text-[14px] font-medium text-white hover:underline px-2">Reset</button>
+                        <button type="button" onclick="saveSettingsSubmit()" class="bg-dc-green hover:bg-[#1f934f] text-white font-medium px-4 py-1.5 rounded-[3px] text-[14px] shadow">Save Changes</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- DISCORD STYLE FLOATING UNSAVED CHANGES BAR -->
-            <div id="discordFloatingBar" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#111214] shadow-[0_8px_24px_rgba(0,0,0,0.4)] rounded-[8px] px-4 py-3 flex items-center justify-between w-[90%] max-w-[800px] z-40 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
-                <span class="text-[14px] font-medium text-white flex items-center gap-2">
-                    Careful — you have unsaved changes!
-                </span>
-                <div class="flex items-center gap-3">
-                    <button type="button" onclick="resetSettings()" class="text-[14px] font-medium text-white hover:underline px-2 py-1">Reset</button>
-                    <button type="button" onclick="saveSettingsSubmit()" class="bg-dc-green hover:bg-[#1f934f] text-white font-medium px-4 py-1.5 rounded-[3px] text-[14px] transition-colors">
-                        Save Changes
-                    </button>
+            <!-- RIGHT ACTIVITY SIDEBAR -->
+            <div id="rightSidebar" class="w-72 bg-dc-sidebar border-l border-dc-rail/40 h-full flex flex-col transition-all duration-300 z-10 hidden-scrollbar">
+                <div class="p-4 flex-1 overflow-y-auto hidden-scrollbar">
+                    <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-3">Activity — Live</h3>
+                    
+                    <div class="bg-dc-input rounded-[8px] p-3 mb-4 border border-transparent hover:border-[#3F4147] cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div class="w-8 h-8 bg-dc-brand rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-robot"></i></div>
+                                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-dc-input rounded-full flex items-center justify-center"><div class="w-2 h-2 bg-dc-green rounded-full"></div></div>
+                            </div>
+                            <div>
+                                <div class="text-[14px] font-bold text-white leading-tight flex items-center gap-1">GalaMC Bot</div>
+                                <div class="text-[12px] text-dc-textMuted mt-0.5 truncate max-w-[140px]" id="liveBotStatusText">Online</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-3 mt-6">Recent Sales — Live</h3>
+                    <div id="recentSalesContainer" class="space-y-2">
+                        <div class="text-center text-[12px] text-dc-textMuted mt-4 flex flex-col items-center">
+                            <i class="fa-solid fa-circle-notch fa-spin text-lg mb-2 text-dc-brand"></i>
+                            Loading sales data...
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- NATIVE DISCORD MODALS -->
-    <!-- Rank Modal -->
+    <!-- MODALS -->
     <div id="rankModal" class="fixed inset-0 bg-black/70 hidden flex justify-center items-center p-4 z-50">
-        <!-- Rounded-2xl to match "Customize Your App" modal -->
-        <div class="bg-dc-floating rounded-2xl w-full max-w-[480px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="rankModalBox">
-            
-            <div class="p-6 pb-4 flex justify-between items-center">
-                <h2 id="modalRankTitle" class="text-xl font-bold text-dc-textHead">Edit Rank</h2>
-                <button type="button" onclick="closeRankModal()" class="text-dc-textMuted hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div class="bg-dc-floating rounded-[8px] w-full max-w-[480px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="rankModalBox">
+            <div class="p-4 px-6 flex justify-between items-center text-center relative">
+                <h2 id="modalRankTitle" class="text-xl font-bold text-dc-textHead w-full">Edit Rank</h2>
+                <button type="button" onclick="closeRankModal()" class="text-dc-textMuted hover:text-white absolute right-4"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
             <form id="rankForm" class="flex flex-col">
-                <div class="px-6 space-y-4 max-h-[60vh] overflow-y-auto main-scroll mb-4">
+                <div class="px-6 space-y-4 max-h-[60vh] overflow-y-auto hidden-scrollbar mb-6 mt-2">
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="dc-label">Theme / Rank ID <span class="text-dc-red">*</span></label>
-                            <input type="text" id="modalRankId" class="dc-input uppercase" required>
-                        </div>
-                        <div>
-                            <label class="dc-label">Price (IDR) <span class="text-dc-red">*</span></label>
-                            <input type="number" id="modalRankPrice" class="dc-input" required>
-                        </div>
+                        <div><label class="dc-label">Rank ID <span class="text-dc-red">*</span></label><input type="text" id="modalRankId" class="dc-input uppercase bg-[#1E1F22]" required></div>
+                        <div><label class="dc-label">Price (IDR) <span class="text-dc-red">*</span></label><input type="number" id="modalRankPrice" class="dc-input bg-[#1E1F22]" required></div>
                     </div>
-                    <div>
-                        <label class="dc-label">Discord Role ID</label>
-                        <input type="text" id="modalRankRole" class="dc-input font-mono">
-                    </div>
-                    <div>
-                        <label class="dc-label">Benefits</label>
-                        <textarea id="modalRankBenefits" rows="3" class="dc-input resize-none"></textarea>
-                    </div>
+                    <div><label class="dc-label">Discord Role ID</label><input type="text" id="modalRankRole" class="dc-input bg-[#1E1F22] font-mono"></div>
+                    <div><label class="dc-label">Benefits</label><textarea id="modalRankBenefits" rows="3" class="dc-input bg-[#1E1F22] resize-none"></textarea></div>
                     <div>
                         <label class="dc-label">RCON Commands</label>
-                        <textarea id="modalRankCommands" rows="3" class="dc-input font-mono resize-none text-[12px]"></textarea>
+                        <textarea id="modalRankCommands" rows="3" class="dc-input bg-[#1E1F22] font-mono resize-none text-[12px]"></textarea>
                     </div>
                 </div>
-                <!-- Action Area matches the modal bottom style -->
-                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center border-t border-[#1E1F22]/50 mt-2">
+                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center bg-black/20">
                     <button type="button" onclick="closeRankModal()" class="text-white hover:underline text-[14px] font-medium mr-4">Cancel</button>
-                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-2 px-8 rounded-[4px] text-[14px] transition-colors shadow">Apply</button>
+                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-[10px] px-8 rounded-[3px] text-[14px]">Apply</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Promo Modal -->
     <div id="promoModal" class="fixed inset-0 bg-black/70 hidden flex justify-center items-center p-4 z-50">
-        <div class="bg-dc-floating rounded-2xl w-full max-w-[420px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="promoModalBox">
-            <div class="p-6 pb-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-dc-textHead">Create Voucher</h2>
-                <button type="button" onclick="closePromoModal()" class="text-dc-textMuted hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div class="bg-dc-floating rounded-[8px] w-full max-w-[420px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="promoModalBox">
+            <div class="p-4 px-6 flex justify-between items-center text-center relative">
+                <h2 class="text-xl font-bold text-dc-textHead w-full">Create Voucher</h2>
+                <button type="button" onclick="closePromoModal()" class="text-dc-textMuted hover:text-white absolute right-4"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
             <form id="promoForm" class="flex flex-col">
-                <div class="px-6 space-y-4 mb-4">
-                    <div>
-                        <label class="dc-label">Kode Promo <span class="text-dc-red">*</span></label>
-                        <input type="text" id="modalPromoCode" class="dc-input uppercase font-mono" required>
-                    </div>
+                <div class="px-6 space-y-4 mb-6 mt-2">
+                    <div><label class="dc-label">Kode Promo <span class="text-dc-red">*</span></label><input type="text" id="modalPromoCode" class="dc-input uppercase font-mono bg-[#1E1F22]" required></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="dc-label">Diskon (%) <span class="text-dc-red">*</span></label>
-                            <input type="number" id="modalPromoDisc" class="dc-input" required>
-                        </div>
-                        <div>
-                            <label class="dc-label">Max Uses <span class="text-dc-red">*</span></label>
-                            <input type="number" id="modalPromoMax" class="dc-input" required>
-                        </div>
+                        <div><label class="dc-label">Diskon (%) <span class="text-dc-red">*</span></label><input type="number" id="modalPromoDisc" class="dc-input bg-[#1E1F22]" required></div>
+                        <div><label class="dc-label">Max Uses <span class="text-dc-red">*</span></label><input type="number" id="modalPromoMax" class="dc-input bg-[#1E1F22]" required></div>
                     </div>
                 </div>
-                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center border-t border-[#1E1F22]/50 mt-2">
+                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center bg-black/20">
                     <button type="button" onclick="closePromoModal()" class="text-white hover:underline text-[14px] font-medium mr-4">Cancel</button>
-                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-2 px-8 rounded-[4px] text-[14px] transition-colors shadow">Apply</button>
+                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-[10px] px-8 rounded-[3px] text-[14px]">Apply</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        let adminToken = localStorage.getItem('adminToken') || '';
-        let currentRanks = {};
-        let originalSettings = {};
+<script>
+    let adminToken = localStorage.getItem('adminToken') || '';
+    let originalSettings = {};
+    let realtimeTimer = null;
 
-        document.addEventListener('DOMContentLoaded', () => checkAuth());
+    document.addEventListener('DOMContentLoaded', () => { checkAuth(); });
 
-        async function checkAuth() {
-            try {
-                const res = await fetch('/api/admin/check-auth', { headers: { 'x-admin-auth': adminToken } });
-                const json = await res.json();
-                if (json.success) {
-                    document.getElementById('loginOverlay').classList.add('hidden');
-                    document.getElementById('adminContent').classList.remove('hidden');
-                    loadRanks();
-                    loadPromos();
-                } else { showLogin(); }
-            } catch { showLogin(); }
-        }
-
-        function showLogin() {
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('adminContent').classList.add('hidden');
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('loginPassword').value;
-            const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/admin/check-auth', { headers: { 'x-admin-auth': adminToken } });
             const json = await res.json();
             if (json.success) {
-                adminToken = json.token; localStorage.setItem('adminToken', adminToken); checkAuth();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        });
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                loadRanks(); 
+                loadPromos(); 
+                fetchStats(); 
+                loadRecentSales();
 
-        async function logoutAdmin() { await fetch('/api/admin/logout', { method: 'POST' }); localStorage.removeItem('adminToken'); showLogin(); }
-
-        function switchTab(tab) {
-            const btns = { ranks: 'tabBtnRanks', promos: 'tabBtnPromos', settings: 'tabBtnSettings' };
-            const secs = { ranks: 'sectionRanks', promos: 'sectionPromos', settings: 'sectionSettings' };
-            const titles = { ranks: 'ranks-catalog', promos: 'promo-vouchers', settings: 'bot-settings' };
-            const descs = { ranks: 'Atur katalog produk dan command RCON', promos: 'Atur kode diskon belanja', settings: 'Konfigurasi sistem bot & presence' };
-            const icons = { ranks: 'fa-hashtag', promos: 'fa-hashtag', settings: 'fa-gear' };
-
-            document.getElementById('channelTitle').innerText = titles[tab];
-            document.getElementById('channelDesc').innerText = descs[tab];
-            document.getElementById('headerIcon').className = `fa-solid ${icons[tab]} text-dc-textMuted text-xl`;
-
-            document.querySelectorAll('.dc-tooltip-group').forEach(el => el.classList.remove('active'));
-            if (tab === 'ranks') document.querySelectorAll('.dc-tooltip-group')[1]?.classList.add('active');
-            if (tab === 'promos') document.querySelectorAll('.dc-tooltip-group')[2]?.classList.add('active');
-            if (tab === 'settings') document.querySelectorAll('.dc-tooltip-group')[3]?.classList.add('active');
-
-            for (let key in btns) {
-                if (key === tab) {
-                    document.getElementById(btns[key]).className = "w-full px-2 py-1.5 rounded-[4px] flex items-center gap-1.5 text-[15px] font-medium bg-dc-activeBg text-white";
-                    document.getElementById(secs[key]).classList.remove('hidden');
-                } else {
-                    document.getElementById(btns[key]).className = "w-full px-2 py-1.5 rounded-[4px] flex items-center gap-1.5 text-[15px] font-medium text-dc-textMuted hover:bg-dc-hoverBg hover:text-dc-textNorm transition-colors";
-                    document.getElementById(secs[key]).classList.add('hidden');
+                // STARTS REALTIME AUTO-REFRESH (Setiap 1.5 detik)
+                if (!realtimeTimer) {
+                    realtimeTimer = setInterval(() => {
+                        fetchStats();
+                        loadRecentSales();
+                    }, 1500);
                 }
+            } else { 
+                document.getElementById('loginOverlay').classList.remove('hidden'); 
             }
-            if (tab === 'settings') loadSettings();
+        } catch { 
+            document.getElementById('loginOverlay').classList.remove('hidden'); 
         }
+    }
 
-        // --- RANKS ---
-        async function loadRanks() {
-            const res = await fetch('/api/ranks'); const json = await res.json();
-            if (json.success) { currentRanks = json.data; renderRanks(json.data); }
-        }
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('loginPassword').value;
+        const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+        const json = await res.json();
+        if (json.success) { adminToken = json.token; localStorage.setItem('adminToken', adminToken); checkAuth(); } 
+        else { document.getElementById('loginError').classList.remove('hidden'); }
+    });
 
-        function renderRanks(ranks) {
-            const grid = document.getElementById('rankGrid'); grid.innerHTML = '';
-            for (const [id, r] of Object.entries(ranks)) {
-                const card = document.createElement('div');
-                card.className = "bg-[#2B2D31] rounded-[8px] p-4 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-[16px] font-bold text-white flex items-center gap-2">${id} <span class="bg-dc-brand text-white text-[10px] px-1.5 py-[2px] rounded-[3px] uppercase tracking-wide">Rank</span></h3>
-                            <span class="text-[14px] font-semibold text-dc-green">Rp ${r.price.toLocaleString('id-ID')}</span>
-                        </div>
-                        <p class="text-[12px] text-dc-textMuted font-mono mb-4 truncate">Role ID: ${r.discordRoleId || 'None'}</p>
-                    </div>
-                    <div class="flex gap-2 border-t border-[#3F4147] pt-3">
-                        <button onclick="editRank('${id}')" class="flex-1 bg-dc-main hover:bg-[#383A40] text-white text-[13px] font-medium py-1.5 rounded-[3px] transition-colors">Edit Rank</button>
-                        <button onclick="deleteRank('${id}')" class="bg-dc-main hover:bg-dc-red text-dc-textMuted hover:text-white px-3 rounded-[3px] transition-colors"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            }
-        }
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById('currentAdminPass').value;
+        const newPassword = document.getElementById('newAdminPass').value;
 
-        function openRankModal() {
-            document.getElementById('modalRankTitle').innerText = 'Create New Rank';
-            document.getElementById('modalRankId').value = ''; document.getElementById('modalRankId').disabled = false;
-            document.getElementById('modalRankPrice').value = ''; document.getElementById('modalRankRole').value = '';
-            document.getElementById('modalRankBenefits').value = ''; document.getElementById('modalRankCommands').value = 'luckperms user {player} parent set vip';
-            document.getElementById('rankModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('rankModalBox').classList.remove('scale-95'), 10);
-        }
-
-        function editRank(id) {
-            const r = currentRanks[id];
-            document.getElementById('modalRankTitle').innerText = `Edit Rank - ${id}`;
-            document.getElementById('modalRankId').value = id; document.getElementById('modalRankId').disabled = true;
-            document.getElementById('modalRankPrice').value = r.price; document.getElementById('modalRankRole').value = r.discordRoleId || '';
-            document.getElementById('modalRankBenefits').value = r.benefits ? r.benefits.join('\n') : '';
-            document.getElementById('modalRankCommands').value = r.commands ? r.commands.join('\n') : '';
-            document.getElementById('rankModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('rankModalBox').classList.remove('scale-95'), 10);
-        }
-
-        function closeRankModal() {
-            document.getElementById('rankModalBox').classList.add('scale-95');
-            setTimeout(() => document.getElementById('rankModal').classList.add('hidden'), 200);
-        }
-
-        document.getElementById('rankForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                id: document.getElementById('modalRankId').value.toUpperCase().trim(),
-                price: parseInt(document.getElementById('modalRankPrice').value),
-                discordRoleId: document.getElementById('modalRankRole').value.trim(),
-                benefits: document.getElementById('modalRankBenefits').value.split('\n').filter(b => b.trim()),
-                commands: document.getElementById('modalRankCommands').value.split('\n').filter(c => c.trim())
-            };
-            await fetch('/api/admin/rank', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
-            closeRankModal(); loadRanks();
+        const res = await fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+            body: JSON.stringify({ currentPassword, newPassword })
         });
 
-        async function deleteRank(id) {
-            if (!confirm(`Hapus rank ${id}?`)) return;
-            await fetch(`/api/admin/rank/${id}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadRanks();
-        }
+        const json = await res.json();
+        alert(json.message);
+        if (json.success) document.getElementById('changePasswordForm').reset();
+    });
 
-        // --- PROMOS ---
-        async function loadPromos() {
-            const res = await fetch('/api/promos'); const json = await res.json();
-            if (json.success) renderPromos(json.data);
-        }
+    function logoutAdmin() { 
+        if (realtimeTimer) clearInterval(realtimeTimer);
+        localStorage.removeItem('adminToken'); 
+        location.reload(); 
+    }
 
-        function renderPromos(promos) {
-            const grid = document.getElementById('promoGrid'); grid.innerHTML = '';
-            for (const [code, p] of Object.entries(promos)) {
-                const card = document.createElement('div');
-                card.className = "bg-[#2B2D31] rounded-[8px] p-4 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div>
-                        <div class="text-[13px] font-mono text-dc-brand bg-dc-brand/10 px-2 py-0.5 rounded-[3px] w-fit mb-2 font-bold">${code}</div>
-                        <h3 class="text-2xl font-bold text-white mb-1">${p.discountPercent}% OFF</h3>
-                        <p class="text-[12px] text-dc-textMuted font-medium">Uses: ${p.usedCount} / ${p.maxUses}</p>
-                    </div>
-                    <button onclick="deletePromo('${code}')" class="mt-4 w-full bg-dc-main hover:bg-dc-red text-dc-textMuted hover:text-white text-[13px] font-medium py-1.5 rounded-[3px] transition-colors"><i class="fa-solid fa-trash mr-1.5"></i> Revoke Voucher</button>
-                `;
-                grid.appendChild(card);
-            }
-        }
+    function toggleRightSidebar() {
+        const side = document.getElementById('rightSidebar');
+        side.classList.toggle('hidden');
+    }
 
-        function openPromoModal() {
-            document.getElementById('promoModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('promoModalBox').classList.remove('scale-95'), 10);
-        }
+    function toggleBtnState(btn, iconOn, iconOff, colorClass) {
+        const i = btn.querySelector('i');
+        if(i.classList.contains(iconOn)) { i.classList.replace(iconOn, iconOff); btn.classList.add(colorClass); } 
+        else { i.classList.replace(iconOff, iconOn); btn.classList.remove(colorClass); }
+    }
 
-        function closePromoModal() {
-            document.getElementById('promoModalBox').classList.add('scale-95');
-            setTimeout(() => document.getElementById('promoModal').classList.add('hidden'), 200);
-        }
-
-        document.getElementById('promoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                code: document.getElementById('modalPromoCode').value.toUpperCase().trim(),
-                discountPercent: parseInt(document.getElementById('modalPromoDisc').value),
-                maxUses: parseInt(document.getElementById('modalPromoMax').value)
-            };
-            await fetch('/api/admin/promo', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
-            closePromoModal(); loadPromos();
+    function togglePopout(id) {
+        document.querySelectorAll('.popout-menu').forEach(el => {
+            if(el.id !== id) el.classList.remove('active');
         });
+        document.getElementById(id).classList.toggle('active');
+    }
 
-        async function deletePromo(code) {
-            if (!confirm(`Hapus voucher ${code}?`)) return;
-            await fetch(`/api/admin/promo/${code}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadPromos();
-        }
+    function handleSearch() {
+        const query = document.getElementById('globalSearch').value.toLowerCase();
+        document.querySelectorAll('.searchable-container > div').forEach(el => {
+            el.style.display = el.innerText.toLowerCase().includes(query) ? '' : 'none';
+        });
+    }
 
-        // --- SETTINGS & BAR ---
-        function markDirty() { document.getElementById('discordFloatingBar').classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none'); }
-        function hideFloatingBar() { document.getElementById('discordFloatingBar').classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+    function switchTab(tab) {
+        const views = ['Ranks', 'Promos', 'Stats', 'Settings', 'Security', 'Console'];
+        const titles = { ranks: 'ranks-catalog', promos: 'promo-vouchers', statistics: 'statistics', settings: 'bot-settings', security: 'admin-security', console: 'system-console' };
 
-        async function loadSettings() {
-            const res = await fetch('/api/admin/settings', { headers: { 'x-admin-auth': adminToken } }); const json = await res.json();
-            if (json.success) { originalSettings = json.data; applySettingsToForm(json.data); hideFloatingBar(); }
-        }
+        document.getElementById('channelTitle').innerText = titles[tab] || titles.statistics;
+        document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
 
-        function applySettingsToForm(d) {
-            document.getElementById('settingBotStatus').value = d.botStatus; document.getElementById('settingBotActType').value = d.botActivityType;
-            document.getElementById('settingBotActText').value = d.botActivityText; document.getElementById('settingPaymentExpiry').value = d.paymentExpiry;
-            document.getElementById('settingMaintToggle').checked = d.isMaintenance; document.getElementById('settingMaintText').value = d.maintenanceText;
-            document.getElementById('settingCatalogTitle').value = d.catalogTitle; document.getElementById('settingCatalogDesc').value = d.catalogDesc;
-            document.getElementById('settingCatalogColor').value = d.catalogColor; document.getElementById('settingCatalogColorPicker').value = d.catalogColor;
-            document.getElementById('settingFeedToggle').checked = d.isEnabled; document.getElementById('settingFeedChannel').value = d.channelId;
-            document.getElementById('settingFeedTitle').value = d.title; document.getElementById('settingFeedDesc').value = d.desc;
-            document.getElementById('settingFeedColor').value = d.color; document.getElementById('settingFeedColorPicker').value = d.color;
-            document.getElementById('settingFeedFooter').value = d.footer;
-        }
-
-        function resetSettings() { applySettingsToForm(originalSettings); hideFloatingBar(); }
-
-        async function saveSettingsSubmit() {
-            const btn = document.querySelector('#discordFloatingBar button.bg-dc-green');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
+        views.forEach(v => {
+            const lower = v.toLowerCase();
+            const btn = document.getElementById('tabBtn' + v) || document.getElementById('tabBtn' + v.replace('istics','s'));
+            const sec = document.getElementById('section' + v);
             
-            const payload = {
-                botStatus: document.getElementById('settingBotStatus').value, botActivityType: document.getElementById('settingBotActType').value,
-                botActivityText: document.getElementById('settingBotActText').value.trim(), paymentExpiry: parseInt(document.getElementById('settingPaymentExpiry').value) || 15,
-                isMaintenance: document.getElementById('settingMaintToggle').checked, maintenanceText: document.getElementById('settingMaintText').value.trim(),
-                catalogTitle: document.getElementById('settingCatalogTitle').value.trim(), catalogDesc: document.getElementById('settingCatalogDesc').value.trim(),
-                catalogColor: document.getElementById('settingCatalogColor').value.trim(), isEnabled: document.getElementById('settingFeedToggle').checked,
-                channelId: document.getElementById('settingFeedChannel').value.trim(), title: document.getElementById('settingFeedTitle').value.trim(),
-                desc: document.getElementById('settingFeedDesc').value.trim(), color: document.getElementById('settingFeedColor').value.trim(), footer: document.getElementById('settingFeedFooter').value.trim()
-            };
+            if (lower.startsWith(tab.substring(0,4))) {
+                if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 bg-dc-activeBg text-white transition-colors";
+                if(sec) sec.classList.remove('hidden');
+            } else {
+                if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm text-dc-textMuted transition-colors";
+            }
+        });
+        if (tab === 'settings') loadSettings();
+    }
 
-            const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+    function logTerminal(msg, colorClass = 'text-white') {
+        const out = document.getElementById('consoleOutput');
+        out.innerHTML += `<div class="${colorClass}">${msg}</div>`;
+        out.scrollTop = out.scrollHeight;
+    }
+
+    // REALTIME CONSOLE EXECUTION
+    async function handleConsoleCommand(e) {
+        e.preventDefault();
+        const input = document.getElementById('consoleInput');
+        const cmd = input.value.trim();
+        if(!cmd) return;
+        
+        logTerminal(`> ${cmd}`, 'text-dc-textMuted');
+        input.value = '';
+
+        try {
+            const res = await fetch('/api/admin/console/exec', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+                body: JSON.stringify({ command: cmd })
+            });
             const json = await res.json();
-            
-            if (json.success) {
-                originalSettings = payload;
-                btn.innerHTML = 'Save Changes';
-                hideFloatingBar();
+            if(json.success) {
+                logTerminal(json.output, 'text-dc-green');
+            } else {
+                logTerminal(`[ERROR] ${json.message}`, 'text-dc-red');
+            }
+        } catch (err) {
+            logTerminal(`[FAIL] Tidak dapat terhubung ke server backend.`, 'text-dc-red');
+        }
+    }
+
+    async function loadRanks() {
+        const res = await fetch('/api/ranks'); const json = await res.json();
+        if (json.success) {
+            const grid = document.getElementById('rankGrid'); grid.innerHTML = '';
+            for (const [id, r] of Object.entries(json.data)) {
+                const list = r.benefits ? r.benefits.map(b => `${b.replace(/^•\s*/, '')}`).join('\n') : '';
+                const color = r.color || '#5865F2';
+                grid.innerHTML += `
+                    <div class="bg-dc-embedBg rounded-[4px] flex shadow-sm max-w-[600px]" style="border-left: 4px solid ${color}">
+                        <div class="p-4 w-full">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-[15px] font-bold text-white">✨ Rank ${id} - Rp ${r.price.toLocaleString('id-ID')}</h3>
+                            </div>
+                            <div class="text-[13px] text-dc-textNorm whitespace-pre-line leading-relaxed opacity-90 mb-4">${list || 'Belum ada benefit.'}</div>
+                            <div class="flex gap-2">
+                                <button onclick="editRank('${id}', '${r.price}', '${r.discordRoleId || ''}', \`${list}\`, \`${r.commands ? r.commands.join('\\n') : ''}\`)" class="bg-[#4E5058] hover:bg-[#6D6F78] text-white text-[13px] font-medium py-1.5 px-4 rounded-[3px] transition-colors">Edit</button>
+                                <button onclick="deleteRank('${id}')" class="bg-dc-red hover:bg-[#c93237] text-white text-[13px] font-medium py-1.5 px-3 rounded-[3px] transition-colors"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
-    </script>
+    }
+
+    function openRankModal() {
+        document.getElementById('modalRankTitle').innerText = 'Create New Rank';
+        document.getElementById('modalRankId').value = ''; document.getElementById('modalRankId').disabled = false;
+        document.getElementById('modalRankPrice').value = ''; document.getElementById('modalRankRole').value = '';
+        document.getElementById('modalRankBenefits').value = ''; document.getElementById('modalRankCommands').value = 'luckperms user {player} parent set vip';
+        document.getElementById('rankModal').classList.remove('hidden');
+    }
+
+    function editRank(id, price, role, ben, cmd) {
+        document.getElementById('modalRankTitle').innerText = `Edit Rank - ${id}`;
+        document.getElementById('modalRankId').value = id; document.getElementById('modalRankId').disabled = true;
+        document.getElementById('modalRankPrice').value = price; document.getElementById('modalRankRole').value = role;
+        document.getElementById('modalRankBenefits').value = ben; document.getElementById('modalRankCommands').value = cmd;
+        document.getElementById('rankModal').classList.remove('hidden');
+    }
+
+    function closeRankModal() { document.getElementById('rankModal').classList.add('hidden'); }
+
+    document.getElementById('rankForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('modalRankId').value.toUpperCase().trim();
+        const payload = {
+            id, price: parseInt(document.getElementById('modalRankPrice').value),
+            discordRoleId: document.getElementById('modalRankRole').value.trim(),
+            benefits: document.getElementById('modalRankBenefits').value.split('\n').filter(b => b.trim()),
+            commands: document.getElementById('modalRankCommands').value.split('\n').filter(c => c.trim())
+        };
+        await fetch('/api/admin/rank', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+        closeRankModal(); loadRanks();
+    });
+
+    async function deleteRank(id) {
+        if (!confirm(`Hapus rank ${id}?`)) return;
+        await fetch(`/api/admin/rank/${id}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadRanks();
+    }
+
+    async function loadPromos() {
+        const res = await fetch('/api/promos'); const json = await res.json();
+        if (json.success) {
+            const grid = document.getElementById('promoGrid'); grid.innerHTML = '';
+            const promoCount = Object.keys(json.data).length;
+            document.getElementById('statActivePromos').innerText = `${promoCount} Code`;
+            
+            for (const [code, p] of Object.entries(json.data)) {
+                grid.innerHTML += `
+                    <div class="bg-dc-embedBg border border-dc-rail rounded-[8px] p-4 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <div class="text-[12px] font-mono text-dc-brand bg-dc-brand/10 px-2 py-0.5 rounded-[3px] w-fit mb-2 font-bold">${code}</div>
+                            <h3 class="text-xl font-bold text-white mb-1">${p.discountPercent}% OFF</h3>
+                            <p class="text-[12px] text-dc-textMuted font-medium">Uses: ${p.usedCount || 0} / ${p.maxUses}</p>
+                        </div>
+                        <button onclick="deletePromo('${code}')" class="mt-4 w-full bg-[#1E1F22] hover:bg-dc-red text-dc-textMuted hover:text-white text-[13px] font-medium py-1.5 rounded-[3px] transition-colors"><i class="fa-solid fa-trash mr-1.5"></i> Revoke Voucher</button>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
+    function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
+    
+    document.getElementById('promoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = document.getElementById('modalPromoCode').value.toUpperCase().trim();
+        const payload = { code, discountPercent: parseInt(document.getElementById('modalPromoDisc').value), maxUses: parseInt(document.getElementById('modalPromoMax').value) };
+        await fetch('/api/admin/promo', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+        closePromoModal(); loadPromos();
+    });
+
+    async function deletePromo(code) {
+        if (!confirm(`Hapus voucher ${code}?`)) return;
+        await fetch(`/api/admin/promo/${code}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadPromos();
+    }
+
+    // REALTIME STATS FETCH
+    async function fetchStats() {
+        try {
+            const res = await fetch('/api/admin/stats', { headers: { 'x-admin-auth': adminToken } });
+            const json = await res.json();
+            if (json.success) {
+                document.getElementById('statRevenue').innerText = `Rp ${json.data.totalRevenue.toLocaleString('id-ID')}`;
+                document.getElementById('statTx').innerText = `${json.data.totalTransactions}`;
+                document.getElementById('statPing').innerText = `${json.data.ping} ms`;
+                document.getElementById('statUptime').innerText = json.data.uptimeFormatted;
+            }
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+        }
+    }
+
+    // REALTIME SALES LOG FETCH
+    async function loadRecentSales() {
+        try {
+            const res = await fetch('/api/admin/recent-sales', { headers: { 'x-admin-auth': adminToken } });
+            const json = await res.json();
+            const container = document.getElementById('recentSalesContainer');
+            
+            if (json.success && json.data.length > 0) {
+                container.innerHTML = '';
+                json.data.forEach(sale => {
+                    container.innerHTML += `
+                        <div class="bg-dc-input rounded-[8px] p-3 hover:bg-dc-hoverBg transition-colors border border-transparent hover:border-[#3F4147] cursor-pointer">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white"><i class="fa-solid fa-gem"></i></div>
+                                <div>
+                                    <div class="text-[14px] font-bold text-white leading-tight">${sale.rankId || 'Rank Purchase'}</div>
+                                    <div class="text-[12px] text-dc-textMuted mt-0.5">${sale.username || 'Player'} • Rp ${(sale.amount || 0).toLocaleString('id-ID')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Belum ada transaksi real.</div>`;
+            }
+        } catch (err) {
+            document.getElementById('recentSalesContainer').innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Tidak ada data transaksi.</div>`;
+        }
+    }
+
+    function markDirty() { document.getElementById('discordFloatingBar').classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+    function hideFloatingBar() { document.getElementById('discordFloatingBar').classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+
+    async function loadSettings() {
+        const res = await fetch('/api/admin/settings', { headers: { 'x-admin-auth': adminToken } }); const json = await res.json();
+        if (json.success) { 
+            originalSettings = json.data; applySettingsToForm(json.data); hideFloatingBar(); 
+            document.getElementById('liveBotStatusText').innerText = json.data.botActivityText || 'Active';
+        }
+    }
+
+    function applySettingsToForm(d) {
+        document.getElementById('settingBotStatus').value = d.botStatus; document.getElementById('settingBotActType').value = d.botActivityType;
+        document.getElementById('settingBotActText').value = d.botActivityText;
+        document.getElementById('settingMaintToggle').checked = d.isMaintenance; document.getElementById('settingMaintText').value = d.maintenanceText;
+        document.getElementById('settingFeedToggle').checked = d.isEnabled; document.getElementById('settingFeedChannel').value = d.channelId;
+        document.getElementById('settingFeedTitle').value = d.title; document.getElementById('settingFeedDesc').value = d.desc;
+        document.getElementById('settingFeedColorPicker').value = d.color || '#F1C40F'; document.getElementById('settingFeedFooter').value = d.footer;
+    }
+
+    function resetSettings() { applySettingsToForm(originalSettings); hideFloatingBar(); }
+
+    async function saveSettingsSubmit() {
+        hideFloatingBar();
+        const payload = {
+            botStatus: document.getElementById('settingBotStatus').value, botActivityType: document.getElementById('settingBotActType').value,
+            botActivityText: document.getElementById('settingBotActText').value.trim(),
+            isMaintenance: document.getElementById('settingMaintToggle').checked, maintenanceText: document.getElementById('settingMaintText').value.trim(),
+            isEnabled: document.getElementById('settingFeedToggle').checked, channelId: document.getElementById('settingFeedChannel').value.trim(),
+            title: document.getElementById('settingFeedTitle').value.trim(), desc: document.getElementById('settingFeedDesc').value.trim(),
+            color: document.getElementById('settingFeedColorPicker').value, footer: document.getElementById('settingFeedFooter').value.trim()
+        };
+        const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+        const json = await res.json();
+        if (json.success) { originalSettings = payload; }
+    }
+</script>
 </body>
 </html>
