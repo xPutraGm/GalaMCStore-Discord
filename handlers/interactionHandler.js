@@ -30,7 +30,7 @@ async function handleInteraction(interaction) {
 
     const ranksData = await getRanksData();
 
-    // HELPER BUILD EMBED KATALOG DINAMIS
+    // HELPER BUILD EMBED KATALOG DINAMIS (HANYA TAMPILKAN RANK AKTIF & KETERANGAN HARGA PERMANENT/TEMPORARY)
     async function buildCatalogEmbed(client) {
         const title = await getSetting('catalog_embed_title') || '🛒 MC SERVER OFFICIAL STORE';
         const desc = await getSetting('catalog_embed_desc') || 'Selamat datang di Official Store! Pilih tombol di bawah untuk membeli rank diri sendiri atau mengirim hadiah ke teman.';
@@ -44,8 +44,20 @@ async function handleInteraction(interaction) {
             .setTimestamp();
 
         for (const [rankName, rankInfo] of Object.entries(ranksData)) {
+            // FILTER: SISIHKAN RANK JIKA STATUS ISACTIVE === FALSE
+            if (rankInfo.isActive === false) continue;
+
+            let priceDisplay = '';
+            if (rankInfo.allowPermanent !== false && rankInfo.allowTemporary === true) {
+                priceDisplay = `Rp ${(rankInfo.price || 0).toLocaleString('id-ID')} (Perm) / Rp ${(rankInfo.tempPrice || 0).toLocaleString('id-ID')} (${rankInfo.durationDays || 30}d)`;
+            } else if (rankInfo.allowTemporary === true) {
+                priceDisplay = `Rp ${(rankInfo.tempPrice || 0).toLocaleString('id-ID')} (${rankInfo.durationDays || 30} Days)`;
+            } else {
+                priceDisplay = `Rp ${(rankInfo.price || 0).toLocaleString('id-ID')} (Permanent)`;
+            }
+
             catalogEmbed.addFields({
-                name: `✨ Rank ${rankName} - Rp ${rankInfo.price.toLocaleString('id-ID')}`,
+                name: `✨ Rank ${rankName} - ${priceDisplay}`,
                 value: (rankInfo.benefits && rankInfo.benefits.length > 0 ? rankInfo.benefits.join('\n') : '• Benefit belum diisi') + '\n\u200B',
                 inline: false
             });
@@ -173,19 +185,36 @@ async function handleInteraction(interaction) {
             .setCustomId(`select_rank_only_${mcUsername}_${targetDiscordId}_${appliedDiscount}`)
             .setPlaceholder('👑 Pilih Rank Yang Ingin Dibeli...');
 
+        let hasActiveRank = false;
         for (const [rankName, rankInfo] of Object.entries(ranksData)) {
-            let finalPrice = rankInfo.price;
-            if (appliedDiscount > 0) {
-                finalPrice = Math.round(finalPrice * (1 - appliedDiscount / 100));
+            // SISIHKAN JIKA RANK NON-AKTIF (DISABLED)
+            if (rankInfo.isActive === false) continue;
+            hasActiveRank = true;
+
+            let priceLabel = '';
+            if (rankInfo.allowPermanent !== false && rankInfo.allowTemporary === true) {
+                priceLabel = `Opsi Perm & Temp (${rankInfo.durationDays || 30}d)`;
+            } else if (rankInfo.allowTemporary === true) {
+                let p = rankInfo.tempPrice;
+                if (appliedDiscount > 0) p = Math.round(p * (1 - appliedDiscount / 100));
+                priceLabel = `Rp ${p.toLocaleString('id-ID')} (Temp ${rankInfo.durationDays || 30}d)`;
+            } else {
+                let p = rankInfo.price;
+                if (appliedDiscount > 0) p = Math.round(p * (1 - appliedDiscount / 100));
+                priceLabel = `Rp ${p.toLocaleString('id-ID')} (Permanent)`;
             }
 
             rankSelect.addOptions(
                 new StringSelectMenuOptionBuilder()
-                    .setLabel(`Rank ${rankName} (Rp ${finalPrice.toLocaleString('id-ID')})`)
+                    .setLabel(`Rank ${rankName} - ${priceLabel}`)
                     .setValue(rankName)
                     .setDescription(`${isTrueGift ? 'Gift ke' : 'Beli untuk'} ${mcUsername}`)
                     .setEmoji('⭐')
             );
+        }
+
+        if (!hasActiveRank) {
+            return await interaction.reply({ content: '⚠️ Maaf, saat ini tidak ada rank yang sedang aktif di toko.', ephemeral: true });
         }
 
         const row = new ActionRowBuilder().addComponents(rankSelect);
@@ -197,7 +226,7 @@ async function handleInteraction(interaction) {
         await interaction.reply({ embeds: [rankEmbed], components: [row], ephemeral: true });
     }
 
-    // === 4. SELECT RANK ===
+    // === 4. SELECT RANK (DENGAN DYNAMIC TYPE & DURATION CHECK) ===
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('select_rank_only_')) {
         await interaction.deferUpdate();
 
@@ -208,6 +237,14 @@ async function handleInteraction(interaction) {
         const mcUsername = parts.slice(3).join('_');
 
         const targetRankConfig = ranksData[selectedPackage];
+
+        if (!targetRankConfig || targetRankConfig.isActive === false) {
+            const errEmb = new EmbedBuilder()
+                .setTitle('⚠️ Rank Tidak Tersedia')
+                .setDescription('Maaf, rank ini telah dinonaktifkan atau dihapus oleh Admin.')
+                .setColor('#ED4245');
+            return await interaction.editReply({ embeds: [errEmb], components: [] });
+        }
 
         try {
             const guild = interaction.guild;
@@ -227,13 +264,80 @@ async function handleInteraction(interaction) {
             // Member tidak ada di guild
         }
 
-        let finalPrice = targetRankConfig.price;
+        // JIKA BOTH ACTIVE (PERMANENT & TEMPORARY SAMA-SAMA AKTIF), PROMPT PILIH TYPE DAHULU!
+        if (targetRankConfig.allowPermanent !== false && targetRankConfig.allowTemporary === true) {
+            let permPrice = targetRankConfig.price;
+            let tempPrice = targetRankConfig.tempPrice;
+            if (appliedDiscount > 0) {
+                permPrice = Math.round(permPrice * (1 - appliedDiscount / 100));
+                tempPrice = Math.round(tempPrice * (1 - appliedDiscount / 100));
+            }
+
+            const typeSelect = new StringSelectMenuBuilder()
+                .setCustomId(`select_duration_type_${mcUsername}_${targetDiscordId}_${selectedPackage}_${appliedDiscount}`)
+                .setPlaceholder('⏳ Pilih Varian Durasi Rank...')
+                .addOptions(
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(`Permanent - Rp ${permPrice.toLocaleString('id-ID')}`)
+                        .setValue('permanent')
+                        .setDescription('Akses rank selamanya tanpa batas waktu')
+                        .setEmoji('💎'),
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel(`Temporary (${targetRankConfig.durationDays || 30} Hari) - Rp ${tempPrice.toLocaleString('id-ID')}`)
+                        .setValue('temporary')
+                        .setDescription(`Akses rank terbatas selama ${targetRankConfig.durationDays || 30} hari`)
+                        .setEmoji('⏳')
+                );
+
+            const row = new ActionRowBuilder().addComponents(typeSelect);
+            const typeEmbed = new EmbedBuilder()
+                .setTitle(`📌 Langkah 1B: Pilih Durasi Paket (Rank ${selectedPackage})`)
+                .setDescription(`Rank **${selectedPackage}** memiliki 2 pilihan paket durasi.\n\nSilakan tentukan paket durasi yang ingin kamu beli:`)
+                .setColor('#00AAFF');
+
+            return await interaction.editReply({ embeds: [typeEmbed], components: [row] });
+        }
+
+        // JIKA HANYA PERMANENT ATAU HANYA TEMPORARY, LANGSUNG MASUK KE PILIH METODE PEMBAYARAN!
+        let buyType = targetRankConfig.allowTemporary === true ? 'temporary' : 'permanent';
+        let basePrice = buyType === 'temporary' ? targetRankConfig.tempPrice : targetRankConfig.price;
+        let finalPrice = basePrice;
+
         if (appliedDiscount > 0) {
             finalPrice = Math.round(finalPrice * (1 - appliedDiscount / 100));
         }
 
+        await renderPaymentSelection(interaction, mcUsername, targetDiscordId, selectedPackage, buyType, finalPrice, appliedDiscount, targetRankConfig.durationDays || 30);
+    }
+
+    // === 4B. SUBMIT DURASI TYPE SELECT (JIKA KEDUA OPSI AKTIF) ===
+    if (interaction.isStringSelectMenu() && interaction.customId.startsWith('select_duration_type_')) {
+        await interaction.deferUpdate();
+
+        const parts = interaction.customId.split('_');
+        const appliedDiscount = parseInt(parts.pop()) || 0;
+        const selectedPackage = parts.pop();
+        const targetDiscordId = parts.pop();
+        const mcUsername = parts.slice(3).join('_');
+        const buyType = interaction.values[0]; // 'permanent' atau 'temporary'
+
+        const targetRankConfig = ranksData[selectedPackage];
+        let basePrice = buyType === 'temporary' ? targetRankConfig.tempPrice : targetRankConfig.price;
+        let finalPrice = basePrice;
+
+        if (appliedDiscount > 0) {
+            finalPrice = Math.round(finalPrice * (1 - appliedDiscount / 100));
+        }
+
+        await renderPaymentSelection(interaction, mcUsername, targetDiscordId, selectedPackage, buyType, finalPrice, appliedDiscount, targetRankConfig.durationDays || 30);
+    }
+
+    // HELPER: UTILITY UNTUK RENDERING MENU METODE PEMBAYARAN
+    async function renderPaymentSelection(interaction, mcUsername, targetDiscordId, selectedPackage, buyType, finalPrice, appliedDiscount, durationDays) {
+        const durationText = buyType === 'temporary' ? `Temporary (${durationDays}d)` : 'Permanent';
+
         const paymentSelect = new StringSelectMenuBuilder()
-            .setCustomId(`select_pay_only_${mcUsername}_${targetDiscordId}_${selectedPackage}_${finalPrice}`)
+            .setCustomId(`select_pay_only_${mcUsername}_${targetDiscordId}_${selectedPackage}_${buyType}_${finalPrice}`)
             .setPlaceholder('💳 Pilih Metode Pembayaran...')
             .addOptions(
                 new StringSelectMenuOptionBuilder().setLabel('QRIS (GoPay, DANA, OVO, ShopeePay)').setValue('qris').setDescription('Scan QRIS').setEmoji('📱'),
@@ -245,18 +349,19 @@ async function handleInteraction(interaction) {
         const row = new ActionRowBuilder().addComponents(paymentSelect);
         const payEmbed = new EmbedBuilder()
             .setTitle('📌 Langkah 2: Pilih Metode Pembayaran')
-            .setDescription(`**Target Username MC:** \`${mcUsername}\`\n**Penerima Role:** <@${targetDiscordId}>\n**Rank Terpilih:** \`Rank ${selectedPackage}\`\n**Total Bayar:** Rp ${finalPrice.toLocaleString('id-ID')}${appliedDiscount > 0 ? ` *(Diskon ${appliedDiscount}%)*` : ''}\n\nPilih **Metode Pembayaran** di bawah ini:`)
+            .setDescription(`**Target Username MC:** \`${mcUsername}\`\n**Penerima Role:** <@${targetDiscordId}>\n**Rank Terpilih:** \`Rank ${selectedPackage}\` (\`${durationText}\`)\n**Total Bayar:** Rp ${finalPrice.toLocaleString('id-ID')}${appliedDiscount > 0 ? ` *(Diskon ${appliedDiscount}%)*` : ''}\n\nPilih **Metode Pembayaran** di bawah ini:`)
             .setColor('#00AAFF');
 
         await interaction.editReply({ embeds: [payEmbed], components: [row] });
     }
 
-    // === 5. SELECT PAYMENT -> CHARGE MIDTRANS (WITH DYNAMIC TIMEOUT) ===
+    // === 5. SELECT PAYMENT -> CHARGE MIDTRANS (DENGAN EXPIRED DINAMIS & METADATA DURATION) ===
     if (interaction.isStringSelectMenu() && interaction.customId.startsWith('select_pay_only_')) {
         await interaction.deferUpdate();
 
         const parts = interaction.customId.split('_');
         const price = parseInt(parts.pop());
+        const buyType = parts.pop(); // 'permanent' atau 'temporary'
         const packageType = parts.pop();
         const targetDiscordId = parts.pop();
         const mcUsername = parts.slice(3).join('_');
@@ -268,12 +373,17 @@ async function handleInteraction(interaction) {
         const expiryMinutes = parseInt(await getSetting('payment_expiry_minutes') || '15');
         const expiryTime = Math.floor(Date.now() / 1000) + (expiryMinutes * 60);
 
+        const targetRankConfig = ranksData[packageType];
+        const durationDays = targetRankConfig?.durationDays || 30;
+        const durationLabel = buyType === 'temporary' ? `Temp (${durationDays}d)` : 'Permanent';
+
         let parameter = {
             transaction_details: { order_id: orderId, gross_amount: price },
-            item_details: [{ id: packageType.toLowerCase(), price: price, quantity: 1, name: `Rank ${packageType} (Minecraft)` }],
+            item_details: [{ id: `${packageType.toLowerCase()}_${buyType}`, price: price, quantity: 1, name: `Rank ${packageType} (${durationLabel})` }],
             customer_details: { first_name: mcUsername, last_name: `(MC)`, email: `${interaction.user.id}@discord.com` },
             custom_field1: mcUsername,
             custom_field2: targetDiscordId,
+            custom_field3: JSON.stringify({ buyType, durationDays }),
             custom_expiry: { expiry_duration: expiryMinutes, unit: 'minute' }
         };
 
@@ -283,7 +393,7 @@ async function handleInteraction(interaction) {
         else if (paymentMethod === 'bri_va') { parameter.payment_type = 'bank_transfer'; parameter.bank_transfer = { bank: 'bri' }; }
 
         try {
-            console.log(`\n[CHARGE INITIATED] OrderID: ${orderId} | MC: ${mcUsername} | TargetDiscord: ${targetDiscordId} | Price: Rp${price}`);
+            console.log(`\n[CHARGE INITIATED] OrderID: ${orderId} | MC: ${mcUsername} | TargetDiscord: ${targetDiscordId} | Type: ${buyType} | Price: Rp${price}`);
             const chargeResponse = await coreApi.charge(parameter);
             const embed = new EmbedBuilder().setColor('#F1C40F');
 
@@ -292,13 +402,13 @@ async function handleInteraction(interaction) {
 
             if (paymentMethod === 'qris') {
                 const qrAction = chargeResponse.actions?.find(action => action.name === 'generate-qr-code');
-                embed.setTitle(`📱 Tagihan QRIS: Rank ${packageType}`)
-                     .setDescription(`**Status:** ⏳ \`WAITING FOR PAYMENT\`\n\n**Target Player MC:** \`${mcUsername}\`${giftText}\n**Total Bayar:** Rp${price.toLocaleString('id-ID')}\n**Order ID:** \`${orderId}\`\n\n⏰ **Batas Waktu:** <t:${expiryTime}:R>\n\nScan QRIS di bawah ini:`)
+                embed.setTitle(`📱 Tagihan QRIS: Rank ${packageType} (${durationLabel})`)
+                     .setDescription(`**Status:** ⏳ \`WAITING FOR PAYMENT\`\n\n**Target Player MC:** \`${mcUsername}\`${giftText}\n**Durasi Rank:** \`${durationLabel}\`\n**Total Bayar:** Rp${price.toLocaleString('id-ID')}\n**Order ID:** \`${orderId}\`\n\n⏰ **Batas Waktu:** <t:${expiryTime}:R>\n\nScan QRIS di bawah ini:`)
                      .setImage(qrAction ? qrAction.url : null);
             } else {
                 let vaNumber = chargeResponse.va_numbers?.[0]?.va_number || chargeResponse.bill_key || 'Lihat Kode';
-                embed.setTitle(`🏦 Virtual Account: Rank ${packageType}`)
-                     .setDescription(`**Status:** ⏳ \`WAITING FOR PAYMENT\`\n\n**Target Player MC:** \`${mcUsername}\`${giftText}\n**Total Bayar:** Rp${price.toLocaleString('id-ID')}\n**Order ID:** \`${orderId}\`\n\n📌 **Kode Bayar / VA:**\n\`\`\`text\n${vaNumber}\n\`\`\`\n⏰ **Batas Waktu:** <t:${expiryTime}:R>`);
+                embed.setTitle(`🏦 Virtual Account: Rank ${packageType} (${durationLabel})`)
+                     .setDescription(`**Status:** ⏳ \`WAITING FOR PAYMENT\`\n\n**Target Player MC:** \`${mcUsername}\`${giftText}\n**Durasi Rank:** \`${durationLabel}\`\n**Total Bayar:** Rp${price.toLocaleString('id-ID')}\n**Order ID:** \`${orderId}\`\n\n📌 **Kode Bayar / VA:**\n\`\`\`text\n${vaNumber}\n\`\`\`\n⏰ **Batas Waktu:** <t:${expiryTime}:R>`);
             }
 
             await interaction.editReply({ embeds: [embed], components: [] });
@@ -307,6 +417,8 @@ async function handleInteraction(interaction) {
                 interaction: interaction,
                 mcUsername: mcUsername,
                 packageType: packageType,
+                buyType: buyType,
+                durationDays: durationDays,
                 price: price,
                 targetDiscordId: targetDiscordId
             });

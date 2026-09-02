@@ -19,7 +19,6 @@ const {
 const { handleInteraction } = require('./handlers/interactionHandler');
 const { handleWebhook } = require('./handlers/webhookHandler');
 
-// Inisialisasi Database MySQL
 (async () => {
     await initDatabase();
 })();
@@ -69,7 +68,6 @@ function requireAdminAuth(req, res, next) {
 // --- AUTH API ---
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
-    // Menggunakan ADMIN_PASSWORD dari .env
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
     if (password === adminPassword) {
@@ -114,19 +112,11 @@ app.post('/api/admin/change-password', requireAdminAuth, async (req, res) => {
     }
 });
 
-// --- RANKS & PROMOS API ---
+// --- RANKS API (ENHANCED WITH TEMPORARY & ON/OFF TOGGLE) ---
 app.get('/api/ranks', async (req, res) => {
     try {
         const data = await getRanksData();
-        res.json({ success: true, data });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-app.get('/api/promos', async (req, res) => {
-    try {
-        const data = await getPromosData();
+        // Public API hanya menampilkan data rank (bisa difilter active di frontend bot)
         res.json({ success: true, data });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -135,10 +125,78 @@ app.get('/api/promos', async (req, res) => {
 
 app.post('/api/admin/rank', requireAdminAuth, async (req, res) => {
     try {
-        const { id, price, discordRoleId, benefits, commands } = req.body;
-        if (!id || !price) return res.status(400).json({ success: false, message: 'ID dan Price wajib diisi' });
-        await saveRank(id, price, '#5865F2', discordRoleId, benefits, commands);
-        res.json({ success: true, message: 'Rank berhasil disimpan' });
+        const { 
+            id, 
+            price, 
+            tempPrice,
+            discordRoleId, 
+            benefits, 
+            commands,
+            isActive = true,
+            allowPermanent = true,
+            allowTemporary = false,
+            durationDays = 30,
+            tempCommands = []
+        } = req.body;
+
+        if (!id) return res.status(400).json({ success: false, message: 'ID Rank wajib diisi' });
+        if (allowPermanent && (!price || price <= 0)) {
+            return res.status(400).json({ success: false, message: 'Harga permanen harus diisi jika permanent buy diaktifkan' });
+        }
+        if (allowTemporary && (!tempPrice || tempPrice <= 0)) {
+            return res.status(400).json({ success: false, message: 'Harga temporary harus diisi jika temporary buy diaktifkan' });
+        }
+
+        const rankPayload = {
+            id,
+            price: price || 0,
+            tempPrice: tempPrice || 0,
+            color: '#5865F2',
+            discordRoleId,
+            benefits,
+            commands,
+            tempCommands,
+            isActive: Boolean(isActive),
+            allowPermanent: Boolean(allowPermanent),
+            allowTemporary: Boolean(allowTemporary),
+            durationDays: parseInt(durationDays) || 30
+        };
+
+        await saveRank(
+            id, 
+            rankPayload.price, 
+            rankPayload.color, 
+            rankPayload.discordRoleId, 
+            rankPayload.benefits, 
+            rankPayload.commands,
+            rankPayload // Opsional passing full payload jika db helper mendukung JSON metadata
+        );
+
+        res.json({ success: true, message: `Rank ${id} berhasil disimpan!` });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Endpoint cepat untuk Toggle ON/OFF Status Rank
+app.post('/api/admin/rank/toggle-status', requireAdminAuth, async (req, res) => {
+    try {
+        const { id, isActive } = req.body;
+        const ranks = await getRanksData();
+        if (ranks[id]) {
+            ranks[id].isActive = Boolean(isActive);
+            await saveRank(
+                id, 
+                ranks[id].price, 
+                ranks[id].color || '#5865F2', 
+                ranks[id].discordRoleId, 
+                ranks[id].benefits, 
+                ranks[id].commands,
+                ranks[id]
+            );
+            return res.json({ success: true, message: `Status Rank ${id} diubah menjadi ${isActive ? 'ACTIVE' : 'DISABLED'}` });
+        }
+        res.status(404).json({ success: false, message: 'Rank tidak ditemukan' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -148,6 +206,16 @@ app.delete('/api/admin/rank/:id', requireAdminAuth, async (req, res) => {
     try {
         await deleteRank(req.params.id);
         res.json({ success: true, message: 'Rank dihapus' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// --- PROMOS API ---
+app.get('/api/promos', async (req, res) => {
+    try {
+        const data = await getPromosData();
+        res.json({ success: true, data });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -212,19 +280,18 @@ app.get('/api/admin/recent-sales', requireAdminAuth, async (req, res) => {
 app.get('/api/admin/settings', requireAdminAuth, async (req, res) => {
     try {
         const data = {
-            // Menggunakan STORE_LOG_CHANNEL_ID jika live_feed_channel belum di-set
             channelId: await getSetting('live_feed_channel') || process.env.STORE_LOG_CHANNEL_ID || '',
             isEnabled: (await getSetting('live_feed_status')) === '1',
             title: await getSetting('live_feed_title') || '🎉 ADA YANG BARU BELANJA NIH!',
-            desc: await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank}**!\n\n✨ *Dukung terus server GalaMC dengan berbelanja di Official Store!*',
+            desc: await getSetting('live_feed_desc') || 'Terima kasih kepada **{player}** {discord} yang baru saja membeli **Rank {rank} ({duration})**!\n\n✨ *Dukung terus server GalaMC dengan berbelanja di Official Store!*',
             color: await getSetting('live_feed_color') || '#F1C40F',
             footer: await getSetting('live_feed_footer') || 'GalaMC Store System',
             botStatus: await getSetting('bot_status') || 'idle',
             botActivityType: await getSetting('bot_activity_type') || 'Custom',
             botActivityText: await getSetting('bot_activity_text') || 'Ketik /buyrank | GalaMC Store 🛒',
             paymentExpiry: parseInt(await getSetting('payment_expiry_minutes') || '15'),
-            catalogTitle: await getSetting('catalog_embed_title') || '🛒 MC SERVER OFFICIAL STORE',
-            catalogDesc: await getSetting('catalog_embed_desc') || 'Selamat datang di Official Store! Pilih tombol di bawah untuk membeli rank.',
+            catalogTitle: await getSetting('catalog_embed_title') || '🛒 GALAMC OFFICIAL RANK STORE',
+            catalogDesc: await getSetting('catalog_embed_desc') || 'Selamat datang di GalaMC Rank Store! Pilih tombol di bawah untuk membeli rank.',
             catalogColor: await getSetting('catalog_embed_color') || '#5865F2',
             isMaintenance: (await getSetting('maintenance_mode')) === '1',
             maintenanceText: await getSetting('maintenance_text') || '⚠️ Store sedang dalam pemeliharaan (Maintenance).'
@@ -267,7 +334,7 @@ app.post('/api/admin/settings', requireAdminAuth, async (req, res) => {
     }
 });
 
-// --- RCON / CONSOLE EXECUTE API (MATCHING .ENV) ---
+// --- RCON / CONSOLE EXECUTE API ---
 app.post('/api/admin/console/exec', requireAdminAuth, async (req, res) => {
     try {
         const { command } = req.body;
@@ -276,7 +343,6 @@ app.post('/api/admin/console/exec', requireAdminAuth, async (req, res) => {
         const cleanCmd = command.startsWith('/') ? command.substring(1) : command;
         let outputMessage = '';
 
-        // Mengambil kredensial RCON langsung dari nama .env kamu
         const mcHost = process.env.MC_HOST;
         const mcRconPort = process.env.MC_RCON_PORT;
         const mcRconPassword = process.env.MC_RCON_PASSWORD;
@@ -295,7 +361,6 @@ app.post('/api/admin/console/exec', requireAdminAuth, async (req, res) => {
                 outputMessage = `[RCON ERROR (${mcHost}:${mcRconPort})]: ${rconErr.message}`;
             }
         } else {
-            // Local fallback command
             if (cleanCmd.toLowerCase() === 'ping') {
                 outputMessage = `[PONG] Gateway Ping: ${client.ws ? client.ws.ping : 0}ms`;
             } else if (cleanCmd.toLowerCase() === 'status') {
@@ -330,5 +395,4 @@ client.on('interactionCreate', (interaction) => handleInteraction(interaction));
 const PORT = process.env.PORT || 6330;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-// Menggunakan DISCORD_TOKEN dari .env
 client.login(process.env.DISCORD_TOKEN);

@@ -80,7 +80,6 @@
 </head>
 <body class="text-dc-textNorm font-sans antialiased h-screen flex flex-col p-1.5 gap-1.5">
 
-    <!-- LOGIN OVERLAY -->
     <div id="loginOverlay" class="fixed inset-0 bg-[#111214] z-50 flex flex-col justify-center items-center p-6 transition-opacity duration-300">
         <div class="w-full max-w-[480px] bg-dc-main p-8 rounded-[8px] shadow-2xl">
             <div class="mb-6 text-center">
@@ -98,10 +97,8 @@
         </div>
     </div>
 
-    <!-- MAIN DISCORD LAYOUT -->
     <div id="adminContent" class="hidden flex-1 flex h-full overflow-hidden rounded-xl bg-dc-rail">
         
-        <!-- LEFTMOST RAIL -->
         <div class="w-[72px] bg-dc-rail flex flex-col items-center py-3 gap-2 flex-shrink-0 z-30 h-full overflow-y-auto hidden-scrollbar">
             <div class="dc-tooltip-group active" onclick="switchTab('ranks')">
                 <span class="dc-pill"></span>
@@ -124,7 +121,6 @@
             </div>
         </div>
 
-        <!-- CHANNEL SIDEBAR -->
         <div class="w-60 bg-dc-sidebar flex flex-col flex-shrink-0 rounded-tl-xl rounded-bl-xl border-r border-dc-rail/40 h-full overflow-hidden shadow-lg z-20">
             <div class="h-12 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] hover:bg-dc-hoverBg cursor-pointer transition-colors flex-shrink-0">
                 <span class="font-bold text-[15px] text-dc-textHead truncate">GalavectMC</span>
@@ -175,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- USER PANEL -->
             <div class="h-[52px] bg-dc-userPanel px-2 flex items-center justify-between flex-shrink-0 relative">
                 <div class="flex items-center gap-2 hover:bg-[#3F4147] p-1 rounded-[6px] cursor-pointer transition-colors w-full overflow-hidden mr-1">
                     <div class="relative flex-shrink-0">
@@ -205,12 +200,10 @@
             </div>
         </div>
 
-        <!-- MAIN CONTENT AREA -->
         <div class="flex-1 flex bg-dc-main min-w-0 h-full relative rounded-tr-xl rounded-br-xl shadow-2xl overflow-hidden">
             
             <div class="flex-1 flex flex-col h-full overflow-hidden">
                 
-                <!-- TOP HEADER BAR -->
                 <div class="h-12 px-4 flex items-center justify-between shadow-[0_1px_2px_rgba(0,0,0,0.15)] bg-dc-main z-20 flex-shrink-0 border-b border-dc-rail/20">
                     <div class="flex items-center gap-2 text-white font-bold text-[16px] truncate">
                         <i id="headerIcon" class="fa-solid fa-hashtag text-dc-textMuted text-xl"></i>
@@ -218,31 +211,8 @@
                     </div>
                     
                     <div class="flex items-center gap-3 flex-shrink-0 text-dc-textMuted relative">
-                        <!-- Threads / Action Log -->
-                        <div class="relative">
-                            <i class="fa-solid fa-hashtag hover:text-white cursor-pointer text-[17px]" title="Action Logs" onclick="togglePopout('popoutLogs')"></i>
-                            <div id="popoutLogs" class="popout-menu absolute right-0 top-full mt-3 w-80 bg-dc-floating border border-dc-input rounded-[8px] shadow-2xl z-50 overflow-hidden">
-                                <div class="p-3 border-b border-dc-input font-bold text-white text-[14px]">Admin Action Logs</div>
-                                <div class="p-2 max-h-60 overflow-y-auto text-[12px] space-y-1" id="actionLogsContainer">
-                                    <div class="p-2 hover:bg-dc-hoverBg rounded cursor-pointer"><span class="text-dc-brand font-bold">@System</span> Workspace Loaded <div class="text-dc-textMuted text-[10px]">Just now</div></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Notification Inbox -->
-                        <div class="relative">
-                            <i class="fa-solid fa-inbox hover:text-white cursor-pointer text-[17px] ml-1" title="Notification Inbox" onclick="togglePopout('popoutNotif')"></i>
-                            <div id="popoutNotif" class="popout-menu absolute right-0 top-full mt-3 w-80 bg-dc-floating border border-dc-input rounded-[8px] shadow-2xl z-50 overflow-hidden">
-                                <div class="p-3 border-b border-dc-input font-bold text-white text-[14px] flex justify-between">Inbox <span class="text-dc-brand cursor-pointer text-[12px] font-normal" onclick="this.parentNode.nextElementSibling.innerHTML='<div class=\'p-4 text-center text-dc-textMuted text-[13px]\'>All cleared!</div>'">Clear</span></div>
-                                <div class="p-4 text-center text-dc-textMuted text-[13px] flex flex-col items-center">
-                                    <i class="fa-solid fa-check-double text-3xl mb-2 opacity-20"></i> All caught up!
-                                </div>
-                            </div>
-                        </div>
-
                         <i class="fa-solid fa-users hover:text-white cursor-pointer text-[17px] text-white" title="Toggle Sidebar" onclick="toggleRightSidebar()"></i>
                         
-                        <!-- Search Bar -->
                         <div class="flex items-center bg-dc-input px-2 py-0.5 rounded-[4px] w-48 overflow-hidden ml-1 border border-transparent focus-within:border-dc-brand transition-colors">
                             <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Search..." class="bg-transparent border-none outline-none text-[13px] w-full text-dc-textNorm placeholder-dc-textMuted">
                             <i class="fa-solid fa-magnifying-glass text-[12px]"></i>
@@ -250,19 +220,19 @@
                     </div>
                 </div>
 
-                <!-- CONTENT BODY -->
                 <div class="flex-1 overflow-y-auto p-6 relative" id="mainScrollArea">
                     
-                    <!-- SECTION: RANKS -->
-                    <section id="sectionRanks" class="max-w-[800px] w-full view-section">
+                    <section id="sectionRanks" class="max-w-[850px] w-full view-section">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2">In-Game Ranks</h2>
-                            <button onclick="openRankModal()" class="bg-dc-green hover:bg-[#1f934f] text-white text-[13px] font-medium px-4 py-1.5 rounded-[3px] transition-colors shadow">Add Rank</button>
+                            <div>
+                                <h2 class="text-xl font-bold text-dc-textHead flex items-center gap-2">In-Game Ranks Management</h2>
+                                <p class="text-[12px] text-dc-textMuted">Kelola rank, tipe pembelian (permanent/temporary), dan toggle status aktif.</p>
+                            </div>
+                            <button onclick="openRankModal()" class="bg-dc-green hover:bg-[#1f934f] text-white text-[13px] font-medium px-4 py-2 rounded-[4px] transition-colors shadow flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add New Rank</button>
                         </div>
                         <div id="rankGrid" class="space-y-4 searchable-container"></div>
                     </section>
 
-                    <!-- SECTION: PROMOS -->
                     <section id="sectionPromos" class="hidden max-w-[800px] w-full view-section">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-bold text-dc-textHead">Promo Vouchers</h2>
@@ -271,7 +241,6 @@
                         <div id="promoGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 searchable-container"></div>
                     </section>
 
-                    <!-- SECTION: STATISTICS -->
                     <section id="sectionStats" class="hidden max-w-[900px] w-full view-section">
                         <h2 class="text-xl font-bold text-dc-textHead mb-6">System & Sales Overview</h2>
                         
@@ -306,11 +275,9 @@
                         </div>
                     </section>
 
-                    <!-- SECTION: SETTINGS -->
                     <section id="sectionSettings" class="hidden max-w-[800px] w-full pb-20 view-section">
                         <h2 class="text-xl font-bold text-dc-textHead mb-6">System Configurations</h2>
                         <form id="settingsForm" oninput="markDirty()" onchange="markDirty()" class="space-y-4">
-                            
                             <div class="bg-dc-embedBg rounded-[8px] p-5">
                                 <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-4">Bot Presence Config</h3>
                                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -362,32 +329,23 @@
                         </form>
                     </section>
 
-                    <!-- SECTION: SECURITY -->
                     <section id="sectionSecurity" class="hidden max-w-[800px] w-full pb-20 view-section">
                         <h2 class="text-xl font-bold text-dc-textHead mb-6">Admin Security</h2>
                         
                         <div class="bg-dc-embedBg rounded-[8px] p-5 mb-4">
                             <h3 class="text-[14px] font-bold text-white mb-2"><i class="fa-solid fa-key mr-2 text-dc-brand"></i> Change Admin Password</h3>
-                            <p class="text-[13px] text-dc-textMuted mb-4">Ganti kata sandi admin secara langsung ke backend.</p>
                             <form id="changePasswordForm" class="space-y-3">
                                 <div><label class="dc-label">Current Password</label><input type="password" id="currentAdminPass" class="dc-input" required></div>
                                 <div><label class="dc-label">New Password</label><input type="password" id="newAdminPass" class="dc-input" required></div>
                                 <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white px-5 py-2 rounded-[3px] text-[13px] font-medium transition-colors mt-2">Update Password</button>
                             </form>
                         </div>
-
-                        <div class="mt-8 border-t border-dc-red/30 pt-6">
-                            <h3 class="text-[14px] font-bold text-dc-red mb-2">Danger Zone</h3>
-                            <button onclick="logoutAdmin()" class="border border-dc-red hover:bg-dc-red text-dc-red hover:text-white px-5 py-2 rounded-[3px] text-[13px] font-bold transition-colors">Logout All Sessions</button>
-                        </div>
                     </section>
 
-                    <!-- SECTION: TERMINAL CONSOLE -->
                     <section id="sectionConsole" class="hidden h-full flex flex-col view-section">
                         <h2 class="text-xl font-bold text-dc-textHead mb-4 flex items-center gap-2"><i class="fa-solid fa-terminal text-dc-textMuted"></i> System Console</h2>
                         <div class="flex-1 bg-dc-terminal rounded-t-[8px] border border-dc-rail p-4 font-mono text-[13px] overflow-y-auto space-y-1 shadow-inner" id="consoleOutput">
                             <div class="text-dc-textMuted">GalaStore Interactive Terminal</div>
-                            <div class="text-dc-green mt-2">[SYSTEM] Ready to send commands to Backend Express.</div>
                         </div>
                         <form onsubmit="handleConsoleCommand(event)" class="bg-dc-input rounded-b-[8px] border-t-0 border border-dc-rail flex items-center px-3 py-2 shadow-sm">
                             <span class="text-dc-green font-mono mr-2 font-bold">></span>
@@ -396,7 +354,6 @@
                     </section>
                 </div>
 
-                <!-- FLOATING ACTION BAR -->
                 <div id="discordFloatingBar" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#111214] shadow-[0_8px_24px_rgba(0,0,0,0.6)] border border-[#2B2D31] rounded-[8px] px-4 py-3 flex items-center justify-between w-[90%] max-w-[700px] z-40 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
                     <span class="text-[14px] font-medium text-white">Careful — you have unsaved changes!</span>
                     <div class="flex items-center gap-3">
@@ -406,11 +363,9 @@
                 </div>
             </div>
 
-            <!-- RIGHT ACTIVITY SIDEBAR -->
             <div id="rightSidebar" class="w-72 bg-dc-sidebar border-l border-dc-rail/40 h-full flex flex-col transition-all duration-300 z-10 hidden-scrollbar">
                 <div class="p-4 flex-1 overflow-y-auto hidden-scrollbar">
                     <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-3">Activity — Live</h3>
-                    
                     <div class="bg-dc-input rounded-[8px] p-3 mb-4 border border-transparent hover:border-[#3F4147] cursor-pointer">
                         <div class="flex items-center gap-3">
                             <div class="relative">
@@ -426,41 +381,93 @@
 
                     <h3 class="text-[12px] font-bold text-dc-textMuted uppercase mb-3 mt-6">Recent Sales — Live</h3>
                     <div id="recentSalesContainer" class="space-y-2">
-                        <div class="text-center text-[12px] text-dc-textMuted mt-4 flex flex-col items-center">
-                            <i class="fa-solid fa-circle-notch fa-spin text-lg mb-2 text-dc-brand"></i>
-                            Loading sales data...
-                        </div>
+                        <div class="text-center text-[12px] text-dc-textMuted mt-4">Loading sales data...</div>
                     </div>
-
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- MODALS -->
     <div id="rankModal" class="fixed inset-0 bg-black/70 hidden flex justify-center items-center p-4 z-50">
-        <div class="bg-dc-floating rounded-[8px] w-full max-w-[480px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="rankModalBox">
-            <div class="p-4 px-6 flex justify-between items-center text-center relative">
-                <h2 id="modalRankTitle" class="text-xl font-bold text-dc-textHead w-full">Edit Rank</h2>
-                <button type="button" onclick="closeRankModal()" class="text-dc-textMuted hover:text-white absolute right-4"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div class="bg-dc-floating rounded-[8px] w-full max-w-[540px] flex flex-col shadow-2xl overflow-hidden scale-95 transition-transform duration-200" id="rankModalBox">
+            <div class="p-4 px-6 flex justify-between items-center border-b border-dc-rail/40">
+                <h2 id="modalRankTitle" class="text-lg font-bold text-dc-textHead">Create New Rank</h2>
+                <button type="button" onclick="closeRankModal()" class="text-dc-textMuted hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <form id="rankForm" class="flex flex-col">
-                <div class="px-6 space-y-4 max-h-[60vh] overflow-y-auto hidden-scrollbar mb-6 mt-2">
+                <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto hidden-scrollbar">
+                    
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="dc-label">Rank ID <span class="text-dc-red">*</span></label><input type="text" id="modalRankId" class="dc-input uppercase bg-[#1E1F22]" required></div>
-                        <div><label class="dc-label">Price (IDR) <span class="text-dc-red">*</span></label><input type="number" id="modalRankPrice" class="dc-input bg-[#1E1F22]" required></div>
+                        <div>
+                            <label class="dc-label">Rank ID <span class="text-dc-red">*</span></label>
+                            <input type="text" id="modalRankId" class="dc-input uppercase font-bold" placeholder="VIP" required>
+                        </div>
+                        <div>
+                            <label class="dc-label">Discord Role ID</label>
+                            <input type="text" id="modalRankRole" class="dc-input font-mono" placeholder="123456789">
+                        </div>
                     </div>
-                    <div><label class="dc-label">Discord Role ID</label><input type="text" id="modalRankRole" class="dc-input bg-[#1E1F22] font-mono"></div>
-                    <div><label class="dc-label">Benefits</label><textarea id="modalRankBenefits" rows="3" class="dc-input bg-[#1E1F22] resize-none"></textarea></div>
+
+                    <div class="bg-[#1E1F22] p-3 rounded-[6px] flex items-center justify-between border border-dc-rail/40">
+                        <div>
+                            <div class="text-[13px] font-bold text-white">Rank Active Status</div>
+                            <div class="text-[11px] text-dc-textMuted">Jika mati (OFF), rank ini disisihkan & tidak bisa dibeli user.</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="modalRankIsActive" class="sr-only peer" checked>
+                            <div class="dc-toggle-bg"><div class="dc-toggle-dot"></div></div>
+                        </label>
+                    </div>
+
+                    <div class="bg-[#1E1F22] p-4 rounded-[6px] space-y-3 border border-dc-rail/40">
+                        <label class="dc-label !mb-1">Tipe Pembelian Yang Diizinkan</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 text-[13px] text-white cursor-pointer">
+                                <input type="checkbox" id="modalAllowPerm" class="rounded bg-dc-sidebar border-none text-dc-brand focus:ring-0" checked onchange="togglePricingInputs()"> Permanent Buy
+                            </label>
+                            <label class="flex items-center gap-2 text-[13px] text-white cursor-pointer">
+                                <input type="checkbox" id="modalAllowTemp" class="rounded bg-dc-sidebar border-none text-dc-brand focus:ring-0" onchange="togglePricingInputs()"> Temporary Buy
+                            </label>
+                        </div>
+
+                        <div id="permPriceContainer">
+                            <label class="dc-label mt-2">Harga Permanent (IDR)</label>
+                            <input type="number" id="modalRankPrice" class="dc-input" placeholder="50000">
+                        </div>
+
+                        <div id="tempConfigContainer" class="space-y-3 border-t border-dc-rail/40 pt-3 hidden">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="dc-label">Harga Temporary (IDR)</label>
+                                    <input type="number" id="modalRankTempPrice" class="dc-input" placeholder="25000">
+                                </div>
+                                <div>
+                                    <label class="dc-label">Masa Aktif (Hari)</label>
+                                    <input type="number" id="modalRankDuration" class="dc-input" placeholder="30" value="30">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="dc-label">Command Khusus Expiry/Temporary (RCON)</label>
+                                <textarea id="modalRankTempCmds" rows="2" class="dc-input font-mono text-[12px] resize-none" placeholder="luckperms user {player} parent remove vip"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="dc-label">RCON Commands</label>
-                        <textarea id="modalRankCommands" rows="3" class="dc-input bg-[#1E1F22] font-mono resize-none text-[12px]"></textarea>
+                        <label class="dc-label">Benefits List (1 Per Baris)</label>
+                        <textarea id="modalRankBenefits" rows="3" class="dc-input resize-none" placeholder="Akses /fly&#10;Prefix VIP"></textarea>
                     </div>
+
+                    <div>
+                        <label class="dc-label">Default Execution Commands (RCON)</label>
+                        <textarea id="modalRankCommands" rows="3" class="dc-input font-mono text-[12px] resize-none" placeholder="luckperms user {player} parent set vip"></textarea>
+                    </div>
+
                 </div>
-                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center bg-black/20">
+                <div class="bg-[#2B2D31] p-4 px-6 flex justify-end items-center border-t border-dc-rail/40">
                     <button type="button" onclick="closeRankModal()" class="text-white hover:underline text-[14px] font-medium mr-4">Cancel</button>
-                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-[10px] px-8 rounded-[3px] text-[14px]">Apply</button>
+                    <button type="submit" class="bg-dc-brand hover:bg-dc-brandHover text-white font-medium py-2 px-6 rounded-[3px] text-[14px]">Save Rank</button>
                 </div>
             </form>
         </div>
@@ -488,332 +495,392 @@
         </div>
     </div>
 
-<script>
-    let adminToken = localStorage.getItem('adminToken') || '';
-    let originalSettings = {};
-    let realtimeTimer = null;
+    <script>
+        let adminToken = localStorage.getItem('adminToken') || '';
+        let originalSettings = {};
+        let realtimeTimer = null;
+        let ranksCache = {};
 
-    document.addEventListener('DOMContentLoaded', () => { checkAuth(); });
+        document.addEventListener('DOMContentLoaded', () => { checkAuth(); });
 
-    async function checkAuth() {
-        try {
-            const res = await fetch('/api/admin/check-auth', { headers: { 'x-admin-auth': adminToken } });
-            const json = await res.json();
-            if (json.success) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('adminContent').classList.remove('hidden');
-                loadRanks(); 
-                loadPromos(); 
-                fetchStats(); 
-                loadRecentSales();
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/check-auth', { headers: { 'x-admin-auth': adminToken } });
+                const json = await res.json();
+                if (json.success) {
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    document.getElementById('adminContent').classList.remove('hidden');
+                    loadRanks(); 
+                    loadPromos(); 
+                    fetchStats(); 
+                    loadRecentSales();
 
-                // STARTS REALTIME AUTO-REFRESH (Setiap 1.5 detik)
-                if (!realtimeTimer) {
-                    realtimeTimer = setInterval(() => {
-                        fetchStats();
-                        loadRecentSales();
-                    }, 1500);
+                    if (!realtimeTimer) {
+                        realtimeTimer = setInterval(() => {
+                            fetchStats();
+                            loadRecentSales();
+                        }, 1500);
+                    }
+                } else { 
+                    document.getElementById('loginOverlay').classList.remove('hidden'); 
                 }
-            } else { 
+            } catch { 
                 document.getElementById('loginOverlay').classList.remove('hidden'); 
             }
-        } catch { 
-            document.getElementById('loginOverlay').classList.remove('hidden'); 
         }
-    }
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = document.getElementById('loginPassword').value;
-        const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
-        const json = await res.json();
-        if (json.success) { adminToken = json.token; localStorage.setItem('adminToken', adminToken); checkAuth(); } 
-        else { document.getElementById('loginError').classList.remove('hidden'); }
-    });
-
-    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const currentPassword = document.getElementById('currentAdminPass').value;
-        const newPassword = document.getElementById('newAdminPass').value;
-
-        const res = await fetch('/api/admin/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
-            body: JSON.stringify({ currentPassword, newPassword })
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('loginPassword').value;
+            const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+            const json = await res.json();
+            if (json.success) { adminToken = json.token; localStorage.setItem('adminToken', adminToken); checkAuth(); } 
+            else { document.getElementById('loginError').classList.remove('hidden'); }
         });
 
-        const json = await res.json();
-        alert(json.message);
-        if (json.success) document.getElementById('changePasswordForm').reset();
-    });
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentAdminPass').value;
+            const newPassword = document.getElementById('newAdminPass').value;
 
-    function logoutAdmin() { 
-        if (realtimeTimer) clearInterval(realtimeTimer);
-        localStorage.removeItem('adminToken'); 
-        location.reload(); 
-    }
-
-    function toggleRightSidebar() {
-        const side = document.getElementById('rightSidebar');
-        side.classList.toggle('hidden');
-    }
-
-    function toggleBtnState(btn, iconOn, iconOff, colorClass) {
-        const i = btn.querySelector('i');
-        if(i.classList.contains(iconOn)) { i.classList.replace(iconOn, iconOff); btn.classList.add(colorClass); } 
-        else { i.classList.replace(iconOff, iconOn); btn.classList.remove(colorClass); }
-    }
-
-    function togglePopout(id) {
-        document.querySelectorAll('.popout-menu').forEach(el => {
-            if(el.id !== id) el.classList.remove('active');
-        });
-        document.getElementById(id).classList.toggle('active');
-    }
-
-    function handleSearch() {
-        const query = document.getElementById('globalSearch').value.toLowerCase();
-        document.querySelectorAll('.searchable-container > div').forEach(el => {
-            el.style.display = el.innerText.toLowerCase().includes(query) ? '' : 'none';
-        });
-    }
-
-    function switchTab(tab) {
-        const views = ['Ranks', 'Promos', 'Stats', 'Settings', 'Security', 'Console'];
-        const titles = { ranks: 'ranks-catalog', promos: 'promo-vouchers', statistics: 'statistics', settings: 'bot-settings', security: 'admin-security', console: 'system-console' };
-
-        document.getElementById('channelTitle').innerText = titles[tab] || titles.statistics;
-        document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-
-        views.forEach(v => {
-            const lower = v.toLowerCase();
-            const btn = document.getElementById('tabBtn' + v) || document.getElementById('tabBtn' + v.replace('istics','s'));
-            const sec = document.getElementById('section' + v);
-            
-            if (lower.startsWith(tab.substring(0,4))) {
-                if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 bg-dc-activeBg text-white transition-colors";
-                if(sec) sec.classList.remove('hidden');
-            } else {
-                if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm text-dc-textMuted transition-colors";
-            }
-        });
-        if (tab === 'settings') loadSettings();
-    }
-
-    function logTerminal(msg, colorClass = 'text-white') {
-        const out = document.getElementById('consoleOutput');
-        out.innerHTML += `<div class="${colorClass}">${msg}</div>`;
-        out.scrollTop = out.scrollHeight;
-    }
-
-    // REALTIME CONSOLE EXECUTION
-    async function handleConsoleCommand(e) {
-        e.preventDefault();
-        const input = document.getElementById('consoleInput');
-        const cmd = input.value.trim();
-        if(!cmd) return;
-        
-        logTerminal(`> ${cmd}`, 'text-dc-textMuted');
-        input.value = '';
-
-        try {
-            const res = await fetch('/api/admin/console/exec', {
+            const res = await fetch('/api/admin/change-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
-                body: JSON.stringify({ command: cmd })
+                body: JSON.stringify({ currentPassword, newPassword })
             });
-            const json = await res.json();
-            if(json.success) {
-                logTerminal(json.output, 'text-dc-green');
-            } else {
-                logTerminal(`[ERROR] ${json.message}`, 'text-dc-red');
-            }
-        } catch (err) {
-            logTerminal(`[FAIL] Tidak dapat terhubung ke server backend.`, 'text-dc-red');
-        }
-    }
 
-    async function loadRanks() {
-        const res = await fetch('/api/ranks'); const json = await res.json();
-        if (json.success) {
-            const grid = document.getElementById('rankGrid'); grid.innerHTML = '';
-            for (const [id, r] of Object.entries(json.data)) {
-                const list = r.benefits ? r.benefits.map(b => `${b.replace(/^•\s*/, '')}`).join('\n') : '';
-                const color = r.color || '#5865F2';
-                grid.innerHTML += `
-                    <div class="bg-dc-embedBg rounded-[4px] flex shadow-sm max-w-[600px]" style="border-left: 4px solid ${color}">
-                        <div class="p-4 w-full">
-                            <div class="flex items-center justify-between mb-2">
-                                <h3 class="text-[15px] font-bold text-white">✨ Rank ${id} - Rp ${r.price.toLocaleString('id-ID')}</h3>
+            const json = await res.json();
+            alert(json.message);
+            if (json.success) document.getElementById('changePasswordForm').reset();
+        });
+
+        function logoutAdmin() { 
+            if (realtimeTimer) clearInterval(realtimeTimer);
+            localStorage.removeItem('adminToken'); 
+            location.reload(); 
+        }
+
+        function toggleRightSidebar() {
+            document.getElementById('rightSidebar').classList.toggle('hidden');
+        }
+
+        function togglePricingInputs() {
+            const isPerm = document.getElementById('modalAllowPerm').checked;
+            const isTemp = document.getElementById('modalAllowTemp').checked;
+
+            document.getElementById('permPriceContainer').style.display = isPerm ? 'block' : 'none';
+            document.getElementById('tempConfigContainer').style.display = isTemp ? 'block' : 'none';
+        }
+
+        function switchTab(tab) {
+            const views = ['Ranks', 'Promos', 'Stats', 'Settings', 'Security', 'Console'];
+            const titles = { ranks: 'ranks-catalog', promos: 'promo-vouchers', statistics: 'statistics', settings: 'bot-settings', security: 'admin-security', console: 'system-console' };
+
+            document.getElementById('channelTitle').innerText = titles[tab] || titles.statistics;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+
+            views.forEach(v => {
+                const lower = v.toLowerCase();
+                const btn = document.getElementById('tabBtn' + v) || document.getElementById('tabBtn' + v.replace('istics','s'));
+                const sec = document.getElementById('section' + v);
+                
+                if (lower.startsWith(tab.substring(0,4))) {
+                    if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 bg-dc-activeBg text-white transition-colors";
+                    if(sec) sec.classList.remove('hidden');
+                } else {
+                    if(btn) btn.className = "w-full px-2 py-[6px] rounded-[4px] flex items-center gap-1.5 hover:bg-dc-hoverBg hover:text-dc-textNorm text-dc-textMuted transition-colors";
+                }
+            });
+            if (tab === 'settings') loadSettings();
+        }
+
+        function logTerminal(msg, colorClass = 'text-white') {
+            const out = document.getElementById('consoleOutput');
+            out.innerHTML += `<div class="${colorClass}">${msg}</div>`;
+            out.scrollTop = out.scrollHeight;
+        }
+
+        async function handleConsoleCommand(e) {
+            e.preventDefault();
+            const input = document.getElementById('consoleInput');
+            const cmd = input.value.trim();
+            if(!cmd) return;
+            
+            logTerminal(`> ${cmd}`, 'text-dc-textMuted');
+            input.value = '';
+
+            try {
+                const res = await fetch('/api/admin/console/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+                    body: JSON.stringify({ command: cmd })
+                });
+                const json = await res.json();
+                if(json.success) logTerminal(json.output, 'text-dc-green');
+                else logTerminal(`[ERROR] ${json.message}`, 'text-dc-red');
+            } catch (err) {
+                logTerminal(`[FAIL] Tidak dapat terhubung ke backend.`, 'text-dc-red');
+            }
+        }
+
+        // LOAD RANKS LIST
+        async function loadRanks() {
+            const res = await fetch('/api/ranks'); 
+            const json = await res.json();
+            if (json.success) {
+                ranksCache = json.data;
+                const grid = document.getElementById('rankGrid'); 
+                grid.innerHTML = '';
+                
+                for (const [id, r] of Object.entries(json.data)) {
+                    const list = r.benefits ? r.benefits.map(b => `${b.replace(/^•\s*/, '')}`).join('\n') : '';
+                    const color = r.color || '#5865F2';
+                    
+                    // PERBAIKAN EVALUASI BOOLEAN
+                    const isActive = !(r.isActive === false || r.isActive === 0 || r.isActive === '0');
+                    
+                    let priceTag = '';
+                    if (r.allowPermanent !== false && r.allowTemporary === true) {
+                        priceTag = `Rp ${(r.price||0).toLocaleString('id-ID')} (Perm) | Rp ${(r.tempPrice||0).toLocaleString('id-ID')} (${r.durationDays||30}d)`;
+                    } else if (r.allowTemporary === true) {
+                        priceTag = `Rp ${(r.tempPrice||0).toLocaleString('id-ID')} (${r.durationDays||30} Days)`;
+                    } else {
+                        priceTag = `Rp ${(r.price||0).toLocaleString('id-ID')} (Permanent)`;
+                    }
+
+                    grid.innerHTML += `
+                        <div class="bg-dc-embedBg rounded-[6px] p-4 flex flex-col md:flex-row justify-between items-start md:items-center shadow-sm ${!isActive ? 'opacity-50 grayscale border-l-4 border-dc-red' : ''}" style="${isActive ? `border-left: 4px solid ${color}` : ''}">
+                            <div class="mb-3 md:mb-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-[16px] font-bold text-white">Rank ${id}</h3>
+                                    ${!isActive ? '<span class="bg-dc-red/20 text-dc-red text-[10px] font-bold px-1.5 py-0.5 rounded">DISABLED</span>' : '<span class="bg-dc-green/20 text-dc-green text-[10px] font-bold px-1.5 py-0.5 rounded">ACTIVE</span>'}
+                                </div>
+                                <p class="text-[13px] text-dc-green font-semibold mt-0.5">${priceTag}</p>
+                                <div class="text-[12px] text-dc-textMuted mt-1 whitespace-pre-line">${list || 'No benefits listed.'}</div>
                             </div>
-                            <div class="text-[13px] text-dc-textNorm whitespace-pre-line leading-relaxed opacity-90 mb-4">${list || 'Belum ada benefit.'}</div>
-                            <div class="flex gap-2">
-                                <button onclick="editRank('${id}', '${r.price}', '${r.discordRoleId || ''}', \`${list}\`, \`${r.commands ? r.commands.join('\\n') : ''}\`)" class="bg-[#4E5058] hover:bg-[#6D6F78] text-white text-[13px] font-medium py-1.5 px-4 rounded-[3px] transition-colors">Edit</button>
+                            
+                            <div class="flex items-center gap-3">
+                                <label class="relative inline-flex items-center cursor-pointer" title="Toggle On/Off Rank">
+                                    <input type="checkbox" onchange="toggleRankActive('${id}', this.checked)" class="sr-only peer" ${isActive ? 'checked' : ''}>
+                                    <div class="dc-toggle-bg"><div class="dc-toggle-dot"></div></div>
+                                </label>
+                                <button onclick="editRank('${id}')" class="bg-[#4E5058] hover:bg-[#6D6F78] text-white text-[13px] font-medium py-1.5 px-3 rounded-[3px] transition-colors"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="deleteRank('${id}')" class="bg-dc-red hover:bg-[#c93237] text-white text-[13px] font-medium py-1.5 px-3 rounded-[3px] transition-colors"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }
         }
-    }
 
-    function openRankModal() {
-        document.getElementById('modalRankTitle').innerText = 'Create New Rank';
-        document.getElementById('modalRankId').value = ''; document.getElementById('modalRankId').disabled = false;
-        document.getElementById('modalRankPrice').value = ''; document.getElementById('modalRankRole').value = '';
-        document.getElementById('modalRankBenefits').value = ''; document.getElementById('modalRankCommands').value = 'luckperms user {player} parent set vip';
-        document.getElementById('rankModal').classList.remove('hidden');
-    }
+        async function toggleRankActive(id, isChecked) {
+            try {
+                const res = await fetch('/api/admin/rank/toggle-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken },
+                    body: JSON.stringify({ id, isActive: isChecked })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    if (ranksCache[id]) ranksCache[id].isActive = isChecked;
+                    loadRanks();
+                } else {
+                    alert(json.message);
+                    loadRanks();
+                }
+            } catch (err) {
+                alert('Gagal mengedit status rank.');
+                loadRanks();
+            }
+        }
 
-    function editRank(id, price, role, ben, cmd) {
-        document.getElementById('modalRankTitle').innerText = `Edit Rank - ${id}`;
-        document.getElementById('modalRankId').value = id; document.getElementById('modalRankId').disabled = true;
-        document.getElementById('modalRankPrice').value = price; document.getElementById('modalRankRole').value = role;
-        document.getElementById('modalRankBenefits').value = ben; document.getElementById('modalRankCommands').value = cmd;
-        document.getElementById('rankModal').classList.remove('hidden');
-    }
-
-    function closeRankModal() { document.getElementById('rankModal').classList.add('hidden'); }
-
-    document.getElementById('rankForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('modalRankId').value.toUpperCase().trim();
-        const payload = {
-            id, price: parseInt(document.getElementById('modalRankPrice').value),
-            discordRoleId: document.getElementById('modalRankRole').value.trim(),
-            benefits: document.getElementById('modalRankBenefits').value.split('\n').filter(b => b.trim()),
-            commands: document.getElementById('modalRankCommands').value.split('\n').filter(c => c.trim())
-        };
-        await fetch('/api/admin/rank', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
-        closeRankModal(); loadRanks();
-    });
-
-    async function deleteRank(id) {
-        if (!confirm(`Hapus rank ${id}?`)) return;
-        await fetch(`/api/admin/rank/${id}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadRanks();
-    }
-
-    async function loadPromos() {
-        const res = await fetch('/api/promos'); const json = await res.json();
-        if (json.success) {
-            const grid = document.getElementById('promoGrid'); grid.innerHTML = '';
-            const promoCount = Object.keys(json.data).length;
-            document.getElementById('statActivePromos').innerText = `${promoCount} Code`;
+        function openRankModal() {
+            document.getElementById('modalRankTitle').innerText = 'Create New Rank';
+            document.getElementById('modalRankId').value = ''; document.getElementById('modalRankId').disabled = false;
+            document.getElementById('modalRankPrice').value = ''; document.getElementById('modalRankTempPrice').value = '';
+            document.getElementById('modalRankRole').value = '';
+            document.getElementById('modalRankBenefits').value = ''; 
+            document.getElementById('modalRankCommands').value = 'luckperms user {player} parent set vip';
+            document.getElementById('modalRankTempCmds').value = 'luckperms user {player} parent remove vip';
+            document.getElementById('modalRankDuration').value = '30';
+            document.getElementById('modalAllowPerm').checked = true;
+            document.getElementById('modalAllowTemp').checked = false;
+            document.getElementById('modalRankIsActive').checked = true;
             
-            for (const [code, p] of Object.entries(json.data)) {
-                grid.innerHTML += `
-                    <div class="bg-dc-embedBg border border-dc-rail rounded-[8px] p-4 flex flex-col justify-between shadow-sm">
-                        <div>
-                            <div class="text-[12px] font-mono text-dc-brand bg-dc-brand/10 px-2 py-0.5 rounded-[3px] w-fit mb-2 font-bold">${code}</div>
-                            <h3 class="text-xl font-bold text-white mb-1">${p.discountPercent}% OFF</h3>
-                            <p class="text-[12px] text-dc-textMuted font-medium">Uses: ${p.usedCount || 0} / ${p.maxUses}</p>
-                        </div>
-                        <button onclick="deletePromo('${code}')" class="mt-4 w-full bg-[#1E1F22] hover:bg-dc-red text-dc-textMuted hover:text-white text-[13px] font-medium py-1.5 rounded-[3px] transition-colors"><i class="fa-solid fa-trash mr-1.5"></i> Revoke Voucher</button>
-                    </div>
-                `;
-            }
+            togglePricingInputs();
+            document.getElementById('rankModal').classList.remove('hidden');
         }
-    }
 
-    function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
-    function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
-    
-    document.getElementById('promoForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const code = document.getElementById('modalPromoCode').value.toUpperCase().trim();
-        const payload = { code, discountPercent: parseInt(document.getElementById('modalPromoDisc').value), maxUses: parseInt(document.getElementById('modalPromoMax').value) };
-        await fetch('/api/admin/promo', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
-        closePromoModal(); loadPromos();
-    });
+        function editRank(id) {
+            const r = ranksCache[id];
+            if(!r) return;
+            document.getElementById('modalRankTitle').innerText = `Edit Rank - ${id}`;
+            document.getElementById('modalRankId').value = id; document.getElementById('modalRankId').disabled = true;
+            document.getElementById('modalRankPrice').value = r.price || ''; 
+            document.getElementById('modalRankTempPrice').value = r.tempPrice || '';
+            document.getElementById('modalRankRole').value = r.discordRoleId || '';
+            document.getElementById('modalRankBenefits').value = r.benefits ? r.benefits.join('\n') : ''; 
+            document.getElementById('modalRankCommands').value = r.commands ? r.commands.join('\n') : '';
+            document.getElementById('modalRankTempCmds').value = r.tempCommands ? r.tempCommands.join('\n') : '';
+            document.getElementById('modalRankDuration').value = r.durationDays || 30;
+            
+            document.getElementById('modalAllowPerm').checked = r.allowPermanent !== false;
+            document.getElementById('modalAllowTemp').checked = r.allowTemporary === true;
+            document.getElementById('modalRankIsActive').checked = !(r.isActive === false || r.isActive === 0);
+            
+            togglePricingInputs();
+            document.getElementById('rankModal').classList.remove('hidden');
+        }
 
-    async function deletePromo(code) {
-        if (!confirm(`Hapus voucher ${code}?`)) return;
-        await fetch(`/api/admin/promo/${code}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadPromos();
-    }
+        function closeRankModal() { document.getElementById('rankModal').classList.add('hidden'); }
 
-    // REALTIME STATS FETCH
-    async function fetchStats() {
-        try {
-            const res = await fetch('/api/admin/stats', { headers: { 'x-admin-auth': adminToken } });
+        document.getElementById('rankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('modalRankId').value.toUpperCase().trim();
+            const payload = {
+                id,
+                price: parseInt(document.getElementById('modalRankPrice').value) || 0,
+                tempPrice: parseInt(document.getElementById('modalRankTempPrice').value) || 0,
+                discordRoleId: document.getElementById('modalRankRole').value.trim(),
+                isActive: document.getElementById('modalRankIsActive').checked,
+                allowPermanent: document.getElementById('modalAllowPerm').checked,
+                allowTemporary: document.getElementById('modalAllowTemp').checked,
+                durationDays: parseInt(document.getElementById('modalRankDuration').value) || 30,
+                benefits: document.getElementById('modalRankBenefits').value.split('\n').filter(b => b.trim()),
+                commands: document.getElementById('modalRankCommands').value.split('\n').filter(c => c.trim()),
+                tempCommands: document.getElementById('modalRankTempCmds').value.split('\n').filter(c => c.trim())
+            };
+
+            const res = await fetch('/api/admin/rank', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
             const json = await res.json();
+            if(json.success) {
+                closeRankModal(); 
+                loadRanks();
+            } else { alert(json.message); }
+        });
+
+        async function deleteRank(id) {
+            if (!confirm(`Hapus permanen rank ${id}?`)) return;
+            await fetch(`/api/admin/rank/${id}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); 
+            loadRanks();
+        }
+
+        async function loadPromos() {
+            const res = await fetch('/api/promos'); const json = await res.json();
             if (json.success) {
-                document.getElementById('statRevenue').innerText = `Rp ${json.data.totalRevenue.toLocaleString('id-ID')}`;
-                document.getElementById('statTx').innerText = `${json.data.totalTransactions}`;
-                document.getElementById('statPing').innerText = `${json.data.ping} ms`;
-                document.getElementById('statUptime').innerText = json.data.uptimeFormatted;
-            }
-        } catch (err) {
-            console.error("Error fetching stats:", err);
-        }
-    }
-
-    // REALTIME SALES LOG FETCH
-    async function loadRecentSales() {
-        try {
-            const res = await fetch('/api/admin/recent-sales', { headers: { 'x-admin-auth': adminToken } });
-            const json = await res.json();
-            const container = document.getElementById('recentSalesContainer');
-            
-            if (json.success && json.data.length > 0) {
-                container.innerHTML = '';
-                json.data.forEach(sale => {
-                    container.innerHTML += `
-                        <div class="bg-dc-input rounded-[8px] p-3 hover:bg-dc-hoverBg transition-colors border border-transparent hover:border-[#3F4147] cursor-pointer">
-                            <div class="flex gap-3">
-                                <div class="w-8 h-8 rounded bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white"><i class="fa-solid fa-gem"></i></div>
-                                <div>
-                                    <div class="text-[14px] font-bold text-white leading-tight">${sale.rankId || 'Rank Purchase'}</div>
-                                    <div class="text-[12px] text-dc-textMuted mt-0.5">${sale.username || 'Player'} • Rp ${(sale.amount || 0).toLocaleString('id-ID')}</div>
-                                </div>
+                const grid = document.getElementById('promoGrid'); grid.innerHTML = '';
+                const promoCount = Object.keys(json.data).length;
+                document.getElementById('statActivePromos').innerText = `${promoCount} Code`;
+                
+                for (const [code, p] of Object.entries(json.data)) {
+                    grid.innerHTML += `
+                        <div class="bg-dc-embedBg border border-dc-rail rounded-[8px] p-4 flex flex-col justify-between shadow-sm">
+                            <div>
+                                <div class="text-[12px] font-mono text-dc-brand bg-dc-brand/10 px-2 py-0.5 rounded-[3px] w-fit mb-2 font-bold">${code}</div>
+                                <h3 class="text-xl font-bold text-white mb-1">${p.discountPercent}% OFF</h3>
+                                <p class="text-[12px] text-dc-textMuted font-medium">Uses: ${p.usedCount || 0} / ${p.maxUses}</p>
                             </div>
+                            <button onclick="deletePromo('${code}')" class="mt-4 w-full bg-[#1E1F22] hover:bg-dc-red text-dc-textMuted hover:text-white text-[13px] font-medium py-1.5 rounded-[3px] transition-colors"><i class="fa-solid fa-trash mr-1.5"></i> Revoke Voucher</button>
                         </div>
                     `;
-                });
-            } else {
-                container.innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Belum ada transaksi real.</div>`;
+                }
             }
-        } catch (err) {
-            document.getElementById('recentSalesContainer').innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Tidak ada data transaksi.</div>`;
         }
-    }
 
-    function markDirty() { document.getElementById('discordFloatingBar').classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none'); }
-    function hideFloatingBar() { document.getElementById('discordFloatingBar').classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+        function openPromoModal() { document.getElementById('promoModal').classList.remove('hidden'); }
+        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
+        
+        document.getElementById('promoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('modalPromoCode').value.toUpperCase().trim();
+            const payload = { code, discountPercent: parseInt(document.getElementById('modalPromoDisc').value), maxUses: parseInt(document.getElementById('modalPromoMax').value) };
+            await fetch('/api/admin/promo', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+            closePromoModal(); loadPromos();
+        });
 
-    async function loadSettings() {
-        const res = await fetch('/api/admin/settings', { headers: { 'x-admin-auth': adminToken } }); const json = await res.json();
-        if (json.success) { 
-            originalSettings = json.data; applySettingsToForm(json.data); hideFloatingBar(); 
-            document.getElementById('liveBotStatusText').innerText = json.data.botActivityText || 'Active';
+        async function deletePromo(code) {
+            if (!confirm(`Hapus voucher ${code}?`)) return;
+            await fetch(`/api/admin/promo/${code}`, { method: 'DELETE', headers: { 'x-admin-auth': adminToken } }); loadPromos();
         }
-    }
 
-    function applySettingsToForm(d) {
-        document.getElementById('settingBotStatus').value = d.botStatus; document.getElementById('settingBotActType').value = d.botActivityType;
-        document.getElementById('settingBotActText').value = d.botActivityText;
-        document.getElementById('settingMaintToggle').checked = d.isMaintenance; document.getElementById('settingMaintText').value = d.maintenanceText;
-        document.getElementById('settingFeedToggle').checked = d.isEnabled; document.getElementById('settingFeedChannel').value = d.channelId;
-        document.getElementById('settingFeedTitle').value = d.title; document.getElementById('settingFeedDesc').value = d.desc;
-        document.getElementById('settingFeedColorPicker').value = d.color || '#F1C40F'; document.getElementById('settingFeedFooter').value = d.footer;
-    }
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/admin/stats', { headers: { 'x-admin-auth': adminToken } });
+                const json = await res.json();
+                if (json.success) {
+                    document.getElementById('statRevenue').innerText = `Rp ${json.data.totalRevenue.toLocaleString('id-ID')}`;
+                    document.getElementById('statTx').innerText = `${json.data.totalTransactions}`;
+                    document.getElementById('statPing').innerText = `${json.data.ping} ms`;
+                    document.getElementById('statUptime').innerText = json.data.uptimeFormatted;
+                }
+            } catch (err) {}
+        }
 
-    function resetSettings() { applySettingsToForm(originalSettings); hideFloatingBar(); }
+        async function loadRecentSales() {
+            try {
+                const res = await fetch('/api/admin/recent-sales', { headers: { 'x-admin-auth': adminToken } });
+                const json = await res.json();
+                const container = document.getElementById('recentSalesContainer');
+                
+                if (json.success && json.data.length > 0) {
+                    container.innerHTML = '';
+                    json.data.forEach(sale => {
+                        container.innerHTML += `
+                            <div class="bg-dc-input rounded-[8px] p-3 hover:bg-dc-hoverBg transition-colors border border-transparent hover:border-[#3F4147] cursor-pointer">
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white"><i class="fa-solid fa-gem"></i></div>
+                                    <div>
+                                        <div class="text-[14px] font-bold text-white leading-tight">${sale.rankId || 'Rank Purchase'}</div>
+                                        <div class="text-[12px] text-dc-textMuted mt-0.5">${sale.username || 'Player'} • Rp ${(sale.amount || 0).toLocaleString('id-ID')}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Belum ada transaksi real.</div>`;
+                }
+            } catch (err) {
+                document.getElementById('recentSalesContainer').innerHTML = `<div class="text-center text-[12px] text-dc-textMuted mt-4">Tidak ada data transaksi.</div>`;
+            }
+        }
 
-    async function saveSettingsSubmit() {
-        hideFloatingBar();
-        const payload = {
-            botStatus: document.getElementById('settingBotStatus').value, botActivityType: document.getElementById('settingBotActType').value,
-            botActivityText: document.getElementById('settingBotActText').value.trim(),
-            isMaintenance: document.getElementById('settingMaintToggle').checked, maintenanceText: document.getElementById('settingMaintText').value.trim(),
-            isEnabled: document.getElementById('settingFeedToggle').checked, channelId: document.getElementById('settingFeedChannel').value.trim(),
-            title: document.getElementById('settingFeedTitle').value.trim(), desc: document.getElementById('settingFeedDesc').value.trim(),
-            color: document.getElementById('settingFeedColorPicker').value, footer: document.getElementById('settingFeedFooter').value.trim()
-        };
-        const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
-        const json = await res.json();
-        if (json.success) { originalSettings = payload; }
-    }
-</script>
+        function markDirty() { document.getElementById('discordFloatingBar').classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+        function hideFloatingBar() { document.getElementById('discordFloatingBar').classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'); }
+
+        async function loadSettings() {
+            const res = await fetch('/api/admin/settings', { headers: { 'x-admin-auth': adminToken } }); const json = await res.json();
+            if (json.success) { 
+                originalSettings = json.data; applySettingsToForm(json.data); hideFloatingBar(); 
+                document.getElementById('liveBotStatusText').innerText = json.data.botActivityText || 'Active';
+            }
+        }
+
+        function applySettingsToForm(d) {
+            document.getElementById('settingBotStatus').value = d.botStatus; document.getElementById('settingBotActType').value = d.botActivityType;
+            document.getElementById('settingBotActText').value = d.botActivityText;
+            document.getElementById('settingMaintToggle').checked = d.isMaintenance; document.getElementById('settingMaintText').value = d.maintenanceText;
+            document.getElementById('settingFeedToggle').checked = d.isEnabled; document.getElementById('settingFeedChannel').value = d.channelId;
+            document.getElementById('settingFeedTitle').value = d.title; document.getElementById('settingFeedDesc').value = d.desc;
+            document.getElementById('settingFeedColorPicker').value = d.color || '#F1C40F'; document.getElementById('settingFeedFooter').value = d.footer || '';
+        }
+
+        function resetSettings() { applySettingsToForm(originalSettings); hideFloatingBar(); }
+
+        async function saveSettingsSubmit() {
+            hideFloatingBar();
+            const payload = {
+                botStatus: document.getElementById('settingBotStatus').value, botActivityType: document.getElementById('settingBotActType').value,
+                botActivityText: document.getElementById('settingBotActText').value.trim(),
+                isMaintenance: document.getElementById('settingMaintToggle').checked, maintenanceText: document.getElementById('settingMaintText').value.trim(),
+                isEnabled: document.getElementById('settingFeedToggle').checked, channelId: document.getElementById('settingFeedChannel').value.trim(),
+                title: document.getElementById('settingFeedTitle').value.trim(), desc: document.getElementById('settingFeedDesc').value.trim(),
+                color: document.getElementById('settingFeedColorPicker').value, footer: document.getElementById('settingFeedFooter').value.trim()
+            };
+            const res = await fetch('/api/admin/settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-auth': adminToken }, body: JSON.stringify(payload) });
+            const json = await res.json();
+            if (json.success) { originalSettings = payload; }
+        }
+    </script>
 </body>
 </html>

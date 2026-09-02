@@ -14,6 +14,7 @@ const pool = mysql.createPool({
 
 async function initDatabase() {
     try {
+        // PERBARUAN: Menambahkan kolom untuk status aktif dan tipe durasi ke tabel ranks
         await pool.query(`
             CREATE TABLE IF NOT EXISTS galadc_ranks (
                 id VARCHAR(50) PRIMARY KEY,
@@ -21,9 +22,27 @@ async function initDatabase() {
                 color VARCHAR(20) DEFAULT '#00AAFF',
                 discord_role_id VARCHAR(50),
                 benefits TEXT,
-                commands TEXT
+                commands TEXT,
+                temp_price INT DEFAULT 0,
+                temp_commands TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                allow_permanent BOOLEAN DEFAULT TRUE,
+                allow_temporary BOOLEAN DEFAULT FALSE,
+                duration_days INT DEFAULT 30
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
+
+        // CEK & TAMBAHKAN KOLOM BARU JIKA TABEL SUDAH ADA (Untuk Mencegah Error)
+        try {
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN temp_price INT DEFAULT 0");
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN temp_commands TEXT");
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN is_active BOOLEAN DEFAULT TRUE");
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN allow_permanent BOOLEAN DEFAULT TRUE");
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN allow_temporary BOOLEAN DEFAULT FALSE");
+            await pool.query("ALTER TABLE galadc_ranks ADD COLUMN duration_days INT DEFAULT 30");
+        } catch (e) {
+            // Abaikan error jika kolom sudah ada
+        }
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS galadc_promos (
@@ -55,7 +74,11 @@ async function initDatabase() {
         const [rows] = await pool.query('SELECT COUNT(*) as total FROM galadc_ranks');
         if (rows[0].total === 0) {
             console.log('🌱 Seeding Data Awal Rank ke MySQL Database (galadc_ranks)...');
-            const insertQuery = 'INSERT INTO galadc_ranks (id, price, color, discord_role_id, benefits, commands) VALUES (?, ?, ?, ?, ?, ?)';
+            const insertQuery = `
+                INSERT INTO galadc_ranks 
+                (id, price, color, discord_role_id, benefits, commands, is_active, allow_permanent) 
+                VALUES (?, ?, ?, ?, ?, ?, TRUE, TRUE)
+            `;
             
             await pool.query(insertQuery, [
                 'VIP', 25000, '#F1C40F', '', JSON.stringify([
@@ -95,34 +118,66 @@ async function getRanksData() {
     const result = {};
     for (const row of rows) {
         result[row.id] = {
+            id: row.id,
             price: row.price,
+            tempPrice: row.temp_price || 0,
             color: row.color,
             discordRoleId: row.discord_role_id,
             benefits: typeof row.benefits === 'string' ? JSON.parse(row.benefits || '[]') : (row.benefits || []),
-            commands: typeof row.commands === 'string' ? JSON.parse(row.commands || '[]') : (row.commands || [])
+            commands: typeof row.commands === 'string' ? JSON.parse(row.commands || '[]') : (row.commands || []),
+            tempCommands: typeof row.temp_commands === 'string' ? JSON.parse(row.temp_commands || '[]') : (row.temp_commands || []),
+            isActive: Boolean(row.is_active),
+            allowPermanent: Boolean(row.allow_permanent),
+            allowTemporary: Boolean(row.allow_temporary),
+            durationDays: row.duration_days || 30
         };
     }
     return result;
 }
 
-async function saveRank(id, price, color, discordRoleId, benefits, commands) {
+// PERBARUAN: saveRank sekarang mendukung properti extraConfig untuk Temporary & Toggle Status
+async function saveRank(id, price, color, discordRoleId, benefits, commands, extraConfig = {}) {
     const query = `
-        INSERT INTO galadc_ranks (id, price, color, discord_role_id, benefits, commands)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO galadc_ranks (
+            id, price, color, discord_role_id, benefits, commands,
+            temp_price, temp_commands, is_active, allow_permanent, allow_temporary, duration_days
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
             price = VALUES(price),
             color = VALUES(color),
             discord_role_id = VALUES(discord_role_id),
             benefits = VALUES(benefits),
-            commands = VALUES(commands)
+            commands = VALUES(commands),
+            temp_price = VALUES(temp_price),
+            temp_commands = VALUES(temp_commands),
+            is_active = VALUES(is_active),
+            allow_permanent = VALUES(allow_permanent),
+            allow_temporary = VALUES(allow_temporary),
+            duration_days = VALUES(duration_days)
     `;
+    
+    // Fallback default value untuk extraConfig
+    const tempPrice = parseInt(extraConfig.tempPrice) || 0;
+    const tempCommands = JSON.stringify(extraConfig.tempCommands || []);
+    const isActive = extraConfig.isActive !== undefined ? extraConfig.isActive : true;
+    const allowPerm = extraConfig.allowPermanent !== undefined ? extraConfig.allowPermanent : true;
+    const allowTemp = extraConfig.allowTemporary !== undefined ? extraConfig.allowTemporary : false;
+    const duration = parseInt(extraConfig.durationDays) || 30;
+
     await pool.query(query, [
         id, 
         price, 
         color || '#00AAFF', 
         discordRoleId || '', 
         JSON.stringify(benefits || []),
-        JSON.stringify(commands || [])
+        JSON.stringify(commands || []),
+        tempPrice,
+        tempCommands,
+        isActive,
+        allowPerm,
+        allowTemp,
+        duration
     ]);
 }
 
